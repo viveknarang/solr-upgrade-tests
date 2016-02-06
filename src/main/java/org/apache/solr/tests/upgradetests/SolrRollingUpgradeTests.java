@@ -76,6 +76,8 @@ public class SolrRollingUpgradeTests {
 		String collectionName = UUID.randomUUID().toString();
 
 		Zookeeper zookeeper = new Zookeeper();
+		zookeeper.start();
+		zookeeper.stop();
 
 	}
 }
