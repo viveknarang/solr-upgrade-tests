@@ -138,11 +138,12 @@ public class SolrNode {
 
 			}
 
-		} else {
-			File node = new File(nodeDirectory + "solr-" + version);
-			node.mkdir();
-			FileUtils.copyDirectory(new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version), node);
-		}
+		} 
+
+		File node = new File(nodeDirectory + "solr-" + version);
+		node.mkdir();
+		FileUtils.copyDirectory(new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version), node);
+		
 	}
 
 	@SuppressWarnings("finally")
