@@ -16,7 +16,6 @@ public class StreamGobbler extends Thread {
 	}
 
 	public void run() {
-		synchronized (this) {
 				try {
 					InputStreamReader isr = new InputStreamReader(is);
 					BufferedReader br = new BufferedReader(isr);
@@ -27,7 +26,6 @@ public class StreamGobbler extends Thread {
 				} catch (IOException ioe) {
 					Util.postMessage(ioe.getMessage(), MessageType.RESULT_ERRROR, true);
 				}
-		}
 	}
 
 }
