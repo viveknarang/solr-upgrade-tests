@@ -71,7 +71,6 @@ public class SolrRollingUpgradeTests {
 		String numShards = argM.get(ARG_NUM_SHARDS);
 		String numReplicas = argM.get(ARG_NUM_REPLICAS);
 
-		boolean collectionCreated = false;
 		int nodesCount = Integer.parseInt(numNodes);
 		String collectionName = UUID.randomUUID().toString();
 
@@ -80,15 +79,42 @@ public class SolrRollingUpgradeTests {
 		zookeeper.start();
 		
 		List<SolrNode> nodes = new LinkedList<SolrNode>();
+		
+		boolean collectionCreated = false;
 		SolrNode node;
-		for (int i = 1; i < nodesCount ; i++) {
+		for (int i = 1; i <= nodesCount ; i++) {
 
-			node = new SolrNode("5.4.0", zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
+			node = new SolrNode(versionOne, zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
 			node.start();
 			Thread.sleep(1000);
 			nodes.add(node);
-			node = null;			
 			
+			if(!collectionCreated) {
+				node.createCollection(collectionName, numShards, numReplicas);
+			}
+
+			node = null;		
+			
+		}
+		
+		client.postData(collectionName);
+		
+		for (SolrNode unode : nodes) {
+
+			unode.stop();
+			unode.upgrade(versionTwo);
+			unode.start();
+			
+			if (!client.verifyData(collectionName)) {
+				Util.postMessage("Data Inconsistant ...", MessageType.RESULT_ERRROR, true);
+			}
+			
+		}
+		
+		if (client.getLiveNodes() == nodesCount) {
+			Util.postMessage("All nodes are up ...", MessageType.RESULT_SUCCESS, true);
+		} else {
+			Util.postMessage("All nodes didn't come up ...", MessageType.RESULT_ERRROR, true);
 		}
 		
 		for (SolrNode cnode : nodes) {
