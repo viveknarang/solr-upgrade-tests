@@ -83,11 +83,13 @@ public class SolrRollingUpgradeTests {
 		node2.start();
 		SolrNode node3 = new SolrNode("5.4.0", zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
 		node3.start();
-		
+
+		Thread.sleep(10000);
 		node.stop();
 		node2.stop();
 		node3.stop();
-		
+
+		Thread.sleep(10000);
 		node.clean();
 		node2.clean();
 		node3.clean();
