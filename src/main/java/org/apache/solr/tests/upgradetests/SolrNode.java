@@ -256,8 +256,81 @@ public class SolrNode {
 
 	}
 
-	public void upgrade(String toVersion) throws IOException {
+	public void upgrade(String toVersion) throws IOException, InterruptedException {
+		
+		
+		File release = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion + ".zip");
+		if (!release.exists()) {
 
+			String fileName = null;
+			URL link = null;
+			InputStream in = null;
+			FileOutputStream fos = null;
+
+			try {
+
+				fileName = "solr-" + toVersion + ".zip";
+				String url = URL_BASE + version + File.separator + fileName;
+				Util.postMessage("** Attempting to download release ..." + " " + toVersion + " from " + url,
+						MessageType.ACTION, true);
+				link = new URL(url);
+
+				in = new BufferedInputStream(link.openStream());
+				fos = new FileOutputStream(SolrRollingUpgradeTests.TEMP_DIR + fileName);
+				byte[] buf = new byte[1024 * 1024]; // 1mb blocks
+				int n = 0;
+				long size = 0;
+				while (-1 != (n = in.read(buf))) {
+					size += n;
+					Util.postMessageOnLine(size + " ");
+					fos.write(buf, 0, n);
+				}
+				fos.close();
+				in.close();
+
+			} catch (Exception e) {
+
+				Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+
+			}
+		}
+
+		File uzrelease = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion);
+		if (!uzrelease.exists()) {
+
+			ZipInputStream zipIn = null;
+
+			try {
+
+				Util.postMessage("** Attempting to unzip the downloaded release ...", MessageType.ACTION, true);
+				zipIn = new ZipInputStream(
+						new FileInputStream(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion + ".zip"));
+				ZipEntry entry = zipIn.getNextEntry();
+				while (entry != null) {
+					String filePath = SolrRollingUpgradeTests.TEMP_DIR + File.separator + entry.getName();
+					if (!entry.isDirectory()) {
+						Util.postMessage("Unzipping to : " + SolrRollingUpgradeTests.TEMP_DIR + " : " + entry.getName(),
+								MessageType.ACTION, true);
+						Util.extractFile(zipIn, filePath);
+					} else {
+						File dirx = new File(filePath);
+						dirx.mkdir();
+					}
+					zipIn.closeEntry();
+					entry = zipIn.getNextEntry();
+				}
+				zipIn.close();
+
+			} catch (Exception e) {
+
+				Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+
+			}
+
+		} 
+		
+		Thread.sleep(1000);
+		
 		this.stop();
 
 		Util.postMessage("** Attempting upgrade on the node by replacing lib folder ..." + "From: " + version + " To: "
