@@ -75,7 +75,7 @@ public class SolrRollingUpgradeTests {
 		String collectionName = UUID.randomUUID().toString();
 
 		Zookeeper zookeeper = new Zookeeper();
-		SolrClient client = new SolrClient(1000, zookeeper.getZookeeperIp(), zookeeper.getZookeeperIp());
+		SolrClient client = new SolrClient(1000, zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
 		zookeeper.start();
 		
 		List<SolrNode> nodes = new LinkedList<SolrNode>();
