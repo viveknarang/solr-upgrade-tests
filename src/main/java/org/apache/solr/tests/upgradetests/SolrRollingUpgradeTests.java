@@ -89,6 +89,8 @@ public class SolrRollingUpgradeTests {
 		node3.stop();
 		
 		node.clean();
+		node2.clean();
+		node3.clean();
 
 		zookeeper.stop();
 
