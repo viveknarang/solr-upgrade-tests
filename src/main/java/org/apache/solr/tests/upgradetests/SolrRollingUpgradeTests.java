@@ -91,6 +91,7 @@ public class SolrRollingUpgradeTests {
 			
 			if(!collectionCreated) {
 				node.createCollection(collectionName, numShards, numReplicas);
+				collectionCreated = true;
 			}
 
 			node = null;		
@@ -120,6 +121,7 @@ public class SolrRollingUpgradeTests {
 		for (SolrNode cnode : nodes) {
 
 			cnode.stop();
+			cnode.clean();
 			
 		}
 
