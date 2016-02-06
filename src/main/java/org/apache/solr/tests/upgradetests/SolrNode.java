@@ -313,6 +313,39 @@ public class SolrNode {
 				true);
 		return getFreePort();
 	}
+	
+	@SuppressWarnings("finally")
+	public int clean() {
+
+		Util.postMessage("Deleting node ... ", MessageType.ACTION, true);
+		Runtime rt = Runtime.getRuntime();
+		Process proc = null;
+		StreamGobbler errorGobbler = null;
+		StreamGobbler outputGobbler = null;
+
+		try {
+
+			proc = rt.exec("rm -r -f " + nodeDirectory);
+
+			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+
+			errorGobbler.start();
+			outputGobbler.start();
+			proc.waitFor();
+			return proc.exitValue();
+
+		} catch (Exception e) {
+
+			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+
+		} finally {
+
+			return proc.exitValue();
+
+		}
+
+	}
 
 	public String getNodeDirectory() {
 		return nodeDirectory;
