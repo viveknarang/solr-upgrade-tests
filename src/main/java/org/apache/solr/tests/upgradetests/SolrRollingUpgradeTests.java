@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -70,29 +71,31 @@ public class SolrRollingUpgradeTests {
 		String numShards = argM.get(ARG_NUM_SHARDS);
 		String numReplicas = argM.get(ARG_NUM_REPLICAS);
 
-		List<SolrNode> nodes = new ArrayList<SolrNode>();
 		boolean collectionCreated = false;
 		int nodesCount = Integer.parseInt(numNodes);
 		String collectionName = UUID.randomUUID().toString();
 
 		Zookeeper zookeeper = new Zookeeper();
+		SolrClient client = new SolrClient(1000, zookeeper.getZookeeperIp(), zookeeper.getZookeeperIp());
 		zookeeper.start();
-		SolrNode node = new SolrNode("5.4.0", zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
-		node.start();
-		SolrNode node2 = new SolrNode("5.4.0", zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
-		node2.start();
-		SolrNode node3 = new SolrNode("5.4.0", zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
-		node3.start();
+		
+		List<SolrNode> nodes = new LinkedList<SolrNode>();
+		SolrNode node;
+		for (int i = 1; i < nodesCount ; i++) {
 
-		Thread.sleep(10000);
-		node.stop();
-		node2.stop();
-		node3.stop();
+			node = new SolrNode("5.4.0", zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
+			node.start();
+			Thread.sleep(1000);
+			nodes.add(node);
+			node = null;			
+			
+		}
+		
+		for (SolrNode cnode : nodes) {
 
-		Thread.sleep(10000);
-		node.clean();
-		node2.clean();
-		node3.clean();
+			cnode.stop();
+			
+		}
 
 		zookeeper.stop();
 
