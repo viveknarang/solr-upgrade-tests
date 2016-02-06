@@ -118,9 +118,9 @@ public class SolrNode {
 						new FileInputStream(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version + ".zip"));
 				ZipEntry entry = zipIn.getNextEntry();
 				while (entry != null) {
-					String filePath = nodeDirectory + File.separator + entry.getName();
+					String filePath = SolrRollingUpgradeTests.TEMP_DIR + File.separator + entry.getName();
 					if (!entry.isDirectory()) {
-						Util.postMessage("Unzipping to : " + nodeDirectory + " : " + entry.getName(),
+						Util.postMessage("Unzipping to : " + SolrRollingUpgradeTests.TEMP_DIR + " : " + entry.getName(),
 								MessageType.ACTION, true);
 						Util.extractFile(zipIn, filePath);
 					} else {
