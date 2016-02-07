@@ -8,6 +8,7 @@ Current Test Results
 --------------------
 
                     Upgrade from:   5.3.0   to  5.4.1           FAILED
+                    Upgrade from:   5.4.0   to  5.4.1           PASSED
                     
 
 
@@ -23,11 +24,11 @@ Use the following command to run this program on server
 Program parameters
 ------------------
 
-                -v1         {Version One}                   Example 5.4.0
-                -v2         {Version Two}                   Example 5.4.1
-                -Nodes     {Number of nodes}               Example 3
-                -Shards    {Number of shards}              Example 2
-                -Replicas  {Number of Replicas}            Example 3
+                -v1           {Version One}                   Example 5.4.0
+                -v2           {Version Two}                   Example 5.4.1
+                -Nodes        {Number of nodes}               Example 3
+                -Shards       {Number of shards}              Example 2
+                -Replicas     {Number of Replicas}            Example 3
 
 Steps
 -----
