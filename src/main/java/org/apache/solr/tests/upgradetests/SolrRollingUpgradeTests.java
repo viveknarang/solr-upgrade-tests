@@ -96,7 +96,7 @@ public class SolrRollingUpgradeTests {
 		}
 		
 		Util.postMessage(String.valueOf(client.getLiveNodes()), MessageType.GENERAL, false);
-		
+		Thread.sleep(30000);
 		client.postData(collectionName);
 		
 		for (SolrNode unode : nodes) {
