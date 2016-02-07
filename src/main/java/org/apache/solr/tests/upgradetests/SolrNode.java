@@ -270,7 +270,7 @@ public class SolrNode {
 			try {
 
 				fileName = "solr-" + toVersion + ".zip";
-				String url = URL_BASE + version + File.separator + fileName;
+				String url = URL_BASE + toVersion + File.separator + fileName;
 				Util.postMessage("** Attempting to download release ..." + " " + toVersion + " from " + url,
 						MessageType.ACTION, true);
 				link = new URL(url);
