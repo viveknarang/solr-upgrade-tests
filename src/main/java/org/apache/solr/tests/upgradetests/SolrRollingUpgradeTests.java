@@ -79,7 +79,6 @@ public class SolrRollingUpgradeTests {
 		
 		List<SolrNode> nodes = new LinkedList<SolrNode>();
 		
-		boolean collectionCreated = false;
 		SolrNode node;
 		for (int i = 1; i <= nodesCount ; i++) {
 
@@ -88,9 +87,8 @@ public class SolrRollingUpgradeTests {
 			Thread.sleep(1000);
 			nodes.add(node);
 			
-			if(!collectionCreated) {
+			if(i == nodesCount) {
 				node.createCollection(collectionName, numShards, numReplicas);
-				collectionCreated = true;
 			}
 
 			node = null;		
