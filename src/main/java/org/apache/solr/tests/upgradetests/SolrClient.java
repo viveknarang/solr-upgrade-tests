@@ -27,7 +27,7 @@ public class SolrClient {
 	public void postData(String collectionName) throws IOException, InterruptedException, SolrServerException {
 
 		Util.postMessage("** Posting data to the node ... ", MessageType.ACTION, true);
-		CloudSolrClient solr = client;
+		CloudSolrClient solr = new CloudSolrClient(zookeeperIp + ":" + zookeeperPort);
 		try {
 
 			solr.connect();
@@ -64,7 +64,7 @@ public class SolrClient {
 	public boolean verifyData(String collectionName) throws IOException, InterruptedException, SolrServerException {
 
 		Util.postMessage("** Getting the data from nodes ... ", MessageType.RESULT_ERRROR, true);
-		CloudSolrClient solr = client;
+		CloudSolrClient solr = new CloudSolrClient(zookeeperIp + ":" + zookeeperPort);
 		try {
 
 			solr.connect();
@@ -113,7 +113,7 @@ public class SolrClient {
 	public void deleteData(String collectionName) throws IOException, InterruptedException, SolrServerException {
 
 		Util.postMessage("** Deleting data from the nodes ... ", MessageType.ACTION, true);
-		CloudSolrClient solr = client;
+		CloudSolrClient solr = new CloudSolrClient(zookeeperIp + ":" + zookeeperPort);
 		try {
 
 			solr.connect();
@@ -135,7 +135,7 @@ public class SolrClient {
 	public int getLiveNodes() throws IOException {
 
 		Util.postMessage("** Attempting to get live nodes on the cluster ... ", MessageType.ACTION, true);
-		CloudSolrClient solr = client;
+		CloudSolrClient solr = new CloudSolrClient(zookeeperIp + ":" + zookeeperPort);
 		try {
 			solr.connect();
 			int liveNodes = solr.getZkStateReader().getClusterState().getLiveNodes().size();
