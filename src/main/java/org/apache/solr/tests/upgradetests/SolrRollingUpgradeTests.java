@@ -120,7 +120,7 @@ public class SolrRollingUpgradeTests {
 		int nodeUpCount = client.getLiveNodes();
 		if (nodeUpCount != nodesCount) {
 			Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.RESULT_ERRROR, false);	
-			this.cleanAndExit(-1, nodes, zookeeper);
+			this.cleanAndExit(-1, nodes, zookeeper, true);
 		} 
 		Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.GENERAL, false);
 		Thread.sleep(30000);
@@ -140,7 +140,7 @@ public class SolrRollingUpgradeTests {
 			
 			if (!client.verifyData(collectionName)) {
 				Util.postMessage("Data Inconsistant ...", MessageType.RESULT_ERRROR, true);
-				this.cleanAndExit(-1, nodes, zookeeper);				
+				this.cleanAndExit(-1, nodes, zookeeper, false);				
 			}
 			
 		}
@@ -149,7 +149,7 @@ public class SolrRollingUpgradeTests {
 			Util.postMessage("All nodes are up ...", MessageType.RESULT_SUCCESS, true);
 		} else {
 			Util.postMessage("All nodes didn't come up ...", MessageType.RESULT_ERRROR, true);
-			this.cleanAndExit(-1, nodes, zookeeper);				
+			this.cleanAndExit(-1, nodes, zookeeper, false);				
 		}
 		
 		if ((client.getLiveNodes() == nodesCount) && (client.verifyData(collectionName))) {
@@ -158,6 +158,6 @@ public class SolrRollingUpgradeTests {
 			Util.postMessage("############# TEST FAILED #############", MessageType.RESULT_ERRROR, true);
 		}
 		
-		this.cleanAndExit(0, nodes, zookeeper);
+		this.cleanAndExit(0, nodes, zookeeper, true);
 	}
 }
