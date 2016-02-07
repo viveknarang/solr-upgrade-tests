@@ -62,7 +62,7 @@ Contributing to this project
 
 Please checkout the code from the repository
 
-                https://github.com/chatman/solr-upgrade-tests
+                https://github.com/viveknarang/org.apache.solr.tests.upgradetests/
     
 Import the project on eclise and do the following 
 
