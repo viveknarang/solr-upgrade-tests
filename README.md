@@ -10,6 +10,7 @@ Current Test Results
                     Upgrade from:   5.3.0   to  5.4.1           FAILED
                     Upgrade from:   5.4.0   to  5.4.1           PASSED
                     Upgrade from:   5.3.0   to  5.3.1           PASSED
+                    Upgrade from:   5.3.0   to  5.4.0           FAILED
 
 
 To Run
