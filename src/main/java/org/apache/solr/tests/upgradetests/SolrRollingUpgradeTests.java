@@ -68,6 +68,11 @@ public class SolrRollingUpgradeTests {
 
 		zookeeper.clean();
 		zookeeper.stop();
+		
+		if (exitValue != 0) {
+			Util.postMessage("############# TEST FAILED/TERMINATED #############", MessageType.RESULT_ERRROR, true);
+		}
+		
 		System.exit(exitValue);
 	}
 
