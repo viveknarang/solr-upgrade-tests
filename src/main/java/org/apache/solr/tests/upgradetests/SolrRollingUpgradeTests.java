@@ -55,6 +55,21 @@ public class SolrRollingUpgradeTests {
 		}
 
 	}
+	
+	public void cleanAndExit(int exitValue, List<SolrNode> nodes, Zookeeper zookeeper) throws IOException, InterruptedException {
+		
+		for (SolrNode cnode : nodes) {
+
+			cnode.stop();
+			cnode.clean();
+			Thread.sleep(10000);
+			
+		}
+
+		zookeeper.clean();
+		zookeeper.stop();
+		System.exit(exitValue);
+	}
 
 	public void test(String args[]) throws IOException, InterruptedException, SolrServerException {
 
@@ -95,18 +110,30 @@ public class SolrRollingUpgradeTests {
 			
 		}
 		
-		Util.postMessage(String.valueOf("Current number of nodes that are up: " + client.getLiveNodes()), MessageType.GENERAL, false);
-		Thread.sleep(5000);
+		int nodeUpCount = client.getLiveNodes();
+		if (nodeUpCount != nodesCount) {
+			Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.RESULT_ERRROR, false);	
+			this.cleanAndExit(-1, nodes, zookeeper);
+		} 
+		Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.GENERAL, false);
+		Thread.sleep(30000);
 		client.postData(collectionName);
 		
 		for (SolrNode unode : nodes) {
 
 			unode.stop();
+			
+			Thread.sleep(30000);
+
 			unode.upgrade(versionTwo);
+
+			Thread.sleep(30000);
+
 			unode.start();
 			
 			if (!client.verifyData(collectionName)) {
 				Util.postMessage("Data Inconsistant ...", MessageType.RESULT_ERRROR, true);
+				this.cleanAndExit(-1, nodes, zookeeper);				
 			}
 			
 		}
@@ -115,6 +142,7 @@ public class SolrRollingUpgradeTests {
 			Util.postMessage("All nodes are up ...", MessageType.RESULT_SUCCESS, true);
 		} else {
 			Util.postMessage("All nodes didn't come up ...", MessageType.RESULT_ERRROR, true);
+			this.cleanAndExit(-1, nodes, zookeeper);				
 		}
 		
 		if ((client.getLiveNodes() == nodesCount) && (client.verifyData(collectionName))) {
@@ -123,15 +151,6 @@ public class SolrRollingUpgradeTests {
 			Util.postMessage("############# TEST FAILED #############", MessageType.RESULT_ERRROR, true);
 		}
 		
-		for (SolrNode cnode : nodes) {
-
-			cnode.stop();
-			cnode.clean();
-			
-		}
-
-		zookeeper.clean();
-		zookeeper.stop();
-
+		this.cleanAndExit(0, nodes, zookeeper);
 	}
 }
