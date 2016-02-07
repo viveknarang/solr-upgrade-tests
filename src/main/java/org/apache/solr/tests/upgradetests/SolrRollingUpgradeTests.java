@@ -56,12 +56,14 @@ public class SolrRollingUpgradeTests {
 
 	}
 	
-	public void cleanAndExit(int exitValue, List<SolrNode> nodes, Zookeeper zookeeper) throws IOException, InterruptedException {
+	public void cleanAndExit(int exitValue, List<SolrNode> nodes, Zookeeper zookeeper, boolean removeFiles) throws IOException, InterruptedException {
 		
 		for (SolrNode cnode : nodes) {
 
 			cnode.stop();
-			cnode.clean();
+			if (removeFiles) {
+					cnode.clean();
+			}
 			Thread.sleep(10000);
 			
 		}
