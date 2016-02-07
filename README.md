@@ -4,6 +4,12 @@ Introduction
 
 The purpose of this program is to test rolling upgrades for Solr Cloud. This is a standalone system where the program takes care of zookeeper and solr releases and manages the process end-to-end.
 
+Current Test Results
+--------------------
+
+                    Upgrade from:   5.3.0   to  5.4.1           FAILED
+                    
+
 
 To Run
 ------
