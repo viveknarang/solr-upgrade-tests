@@ -5,23 +5,21 @@ import java.io.IOException;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrDocument;
 
 public class SolrClient {
 
 	public int TEST_DOCUMENTS_COUNT = 1000;
 	private String zookeeperIp;
 	private String zookeeperPort;
-	private CloudSolrClient client;
 
 	public SolrClient(int TEST_DOCUMENTS_COUNT, String zookeeperIp, String zookeeperPort) {
 		super();
 		this.TEST_DOCUMENTS_COUNT = TEST_DOCUMENTS_COUNT;
 		this.zookeeperIp = zookeeperIp;
 		this.zookeeperPort = zookeeperPort;
-		client = new CloudSolrClient(zookeeperIp + ":" + zookeeperPort);
 	}
 
 	public void postData(String collectionName) throws IOException, InterruptedException, SolrServerException {
@@ -29,7 +27,7 @@ public class SolrClient {
 		Util.postMessage("** Posting data to the node ... ", MessageType.ACTION, true);
 		CloudSolrClient solr = new CloudSolrClient(zookeeperIp + ":" + zookeeperPort);
 		try {
-
+			
 			solr.connect();
 			solr.setDefaultCollection(collectionName);
 			SolrInputDocument document;

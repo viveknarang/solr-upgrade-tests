@@ -95,8 +95,8 @@ public class SolrRollingUpgradeTests {
 			
 		}
 		
-		Util.postMessage(String.valueOf(client.getLiveNodes()), MessageType.GENERAL, false);
-		Thread.sleep(30000);
+		Util.postMessage(String.valueOf("Current number of nodes that are up: " + client.getLiveNodes()), MessageType.GENERAL, false);
+		Thread.sleep(5000);
 		client.postData(collectionName);
 		
 		for (SolrNode unode : nodes) {
@@ -115,6 +115,12 @@ public class SolrRollingUpgradeTests {
 			Util.postMessage("All nodes are up ...", MessageType.RESULT_SUCCESS, true);
 		} else {
 			Util.postMessage("All nodes didn't come up ...", MessageType.RESULT_ERRROR, true);
+		}
+		
+		if ((client.getLiveNodes() == nodesCount) && (client.verifyData(collectionName))) {
+			Util.postMessage("############# TEST PASSED #############", MessageType.RESULT_SUCCESS, true);
+		} else {
+			Util.postMessage("############# TEST FAILED #############", MessageType.RESULT_ERRROR, true);
 		}
 		
 		for (SolrNode cnode : nodes) {
