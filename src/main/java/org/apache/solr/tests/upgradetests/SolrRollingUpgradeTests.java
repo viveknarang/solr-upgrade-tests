@@ -126,6 +126,7 @@ public class SolrRollingUpgradeTests {
 			
 		}
 
+		zookeeper.clean();
 		zookeeper.stop();
 
 	}
