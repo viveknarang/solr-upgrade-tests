@@ -120,7 +120,7 @@ public class SolrNode {
 				while (entry != null) {
 					String filePath = SolrRollingUpgradeTests.TEMP_DIR + File.separator + entry.getName();
 					if (!entry.isDirectory()) {
-						Util.postMessage("Unzipping to : " + SolrRollingUpgradeTests.TEMP_DIR + " : " + entry.getName(),
+						Util.postMessage("\r Unzipping to : " + SolrRollingUpgradeTests.TEMP_DIR + " : " + entry.getName(),
 								MessageType.ACTION, true);
 						Util.extractFile(zipIn, filePath);
 					} else {
