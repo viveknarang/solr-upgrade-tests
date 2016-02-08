@@ -122,7 +122,7 @@ public class SolrRollingUpgradeTests {
 			Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.RESULT_ERRROR, false);	
 			this.cleanAndExit(-1, nodes, zookeeper, true);
 		} 
-		Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.GENERAL, false);
+		Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.RESULT_SUCCESS, false);
 		Thread.sleep(30000);
 		client.postData(collectionName);
 		
