@@ -11,6 +11,8 @@ Current Test Results
                     Upgrade from:   5.4.0   to  5.4.1           PASSED
                     Upgrade from:   5.3.0   to  5.3.1           PASSED
                     Upgrade from:   5.3.0   to  5.4.0           FAILED
+                    Upgrade from:   5.3.1   to  5.4.1           FAILED
+                    Upgrade from:   5.3.1   to  5.4.0           FAILED
 
 
 To Run
@@ -52,7 +54,7 @@ Following is the summary of the steps that the program follows to test the rolli
 Todo
 ----
 
-                running against unreleased (master/branch_5x)
+                Running against unreleased (master/branch_5x)
                 Making it easier to add more tests to this framework
                 Cleaning of current code.
 
