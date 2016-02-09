@@ -13,10 +13,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 
 public class SolrRollingUpgradeTests {
 
-	private static String workDirectory = System.getProperty("user.dir");
-	private static String dname = "SolrUpdateTests";
-	public static String baseDir = workDirectory + File.separator + dname + File.separator;
-	public static String tempDir = baseDir + "temp" + File.separator;
+	private static String WORK_DIRECTORY = System.getProperty("user.dir");
+	private static String DNAME = "SolrUpdateTests";
+	public static String BASE_DIR = WORK_DIRECTORY + File.separator + DNAME + File.separator;
+	public static String TEMP_DIR = BASE_DIR + "temp" + File.separator;
 
 	public static void main(String args[]) throws IOException, InterruptedException, SolrServerException {
 
@@ -30,18 +30,18 @@ public class SolrRollingUpgradeTests {
 
 		try {
 
-			File baseDir = new File(baseDir);
+			File BASE_DIR = new File(BASE_DIR);
 			Util.postMessage("** Checking if base directory exists ...", MessageType.ACTION, true);
-			if (!baseDir.exists()) {
+			if (!BASE_DIR.exists()) {
 				Util.postMessage("Base directory does not exist, creating one ...", MessageType.ACTION, true);
-				baseDir.mkdir();
+				BASE_DIR.mkdir();
 			}
 
 			org.apache.solr.tests.upgradetests.Util.postMessage("** Checking if temp directory exists ...", MessageType.ACTION, true);
-			File tempDir = new File(tempDir);
-			if (!tempDir.exists()) {
+			File TEMP_DIR = new File(TEMP_DIR);
+			if (!TEMP_DIR.exists()) {
 				Util.postMessage("Temp directory does not exist Creating Temp directory ...", MessageType.ACTION, true);
-				tempDir.mkdir();
+				TEMP_DIR.mkdir();
 			}
 
 		} catch (Exception e) {
