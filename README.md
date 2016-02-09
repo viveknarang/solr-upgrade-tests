@@ -1,8 +1,8 @@
-# Solr Cloud Rolling Upgrade Tests
+# Solr Upgrade Tests
 Introduction
 ------------
 
-The purpose of this program is to test rolling upgrades for Solr Cloud. This is a standalone system where the program takes care of zookeeper and solr releases and manages the process end-to-end.
+The purpose of this program is to test rolling upgrades for Solr Cloud.
 
 Current Test Results
 --------------------
@@ -62,27 +62,3 @@ Todo
                 Running against unreleased (master/branch_5x)
                 Making it easier to add more tests to this framework
                 Cleaning of current code.
-
-
-Contributing to this project
-----------------------------
-
-Please checkout the code from the repository
-
-                https://github.com/viveknarang/org.apache.solr.tests.upgradetests/
-    
-Import the project on eclise and do the following 
-
-                mvn eclipse:eclipse
-                mvn clean compile assembly:single
-
-
-Contributions
--------------
-
-                Vivek Narang
-                Ishan Chattopadhyaya
-                
-    
-
-  
