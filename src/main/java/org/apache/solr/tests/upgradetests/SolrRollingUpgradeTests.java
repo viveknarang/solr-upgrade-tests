@@ -30,18 +30,18 @@ public class SolrRollingUpgradeTests {
 
 		try {
 
-			File BASE_DIR = new File(BASE_DIR);
+			File baseDir = new File(BASE_DIR);
 			Util.postMessage("** Checking if base directory exists ...", MessageType.ACTION, true);
 			if (!BASE_DIR.exists()) {
 				Util.postMessage("Base directory does not exist, creating one ...", MessageType.ACTION, true);
-				BASE_DIR.mkdir();
+				baseDir.mkdir();
 			}
 
 			org.apache.solr.tests.upgradetests.Util.postMessage("** Checking if temp directory exists ...", MessageType.ACTION, true);
-			File TEMP_DIR = new File(TEMP_DIR);
+			File tempDir = new File(TEMP_DIR);
 			if (!TEMP_DIR.exists()) {
 				Util.postMessage("Temp directory does not exist Creating Temp directory ...", MessageType.ACTION, true);
-				TEMP_DIR.mkdir();
+				tempDir.mkdir();
 			}
 
 		} catch (Exception e) {
