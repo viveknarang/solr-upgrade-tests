@@ -11,13 +11,13 @@ import org.apache.solr.common.SolrInputDocument;
 
 public class SolrClient {
 
-	public int TEST_DOCUMENTS_COUNT = 1000;
+	public int testDocumentsCount = 1000;
 	private String zookeeperIp;
 	private String zookeeperPort;
 
-	public SolrClient(int TEST_DOCUMENTS_COUNT, String zookeeperIp, String zookeeperPort) {
+	public SolrClient(int testDocumentsCount, String zookeeperIp, String zookeeperPort) {
 		super();
-		this.TEST_DOCUMENTS_COUNT = TEST_DOCUMENTS_COUNT;
+		this.testDocumentsCount = testDocumentsCount;
 		this.zookeeperIp = zookeeperIp;
 		this.zookeeperPort = zookeeperPort;
 	}
@@ -32,7 +32,7 @@ public class SolrClient {
 			solr.setDefaultCollection(collectionName);
 			SolrInputDocument document;
 
-			for (int i = 1; i <= TEST_DOCUMENTS_COUNT; i++) {
+			for (int i = 1; i <= testDocumentsCount; i++) {
 
 				document = new SolrInputDocument();
 				document.setField("EMP_ID", "EMP_ID@" + i);
@@ -86,7 +86,7 @@ public class SolrClient {
 			}
 			Util.postMessage("", MessageType.GENERAL, false);
 
-			if (count != TEST_DOCUMENTS_COUNT) {
+			if (count != testDocumentsCount) {
 				Util.postMessage("%%%% DATA COUNT MISMATCH, returning false  %%%%", MessageType.RESULT_ERRROR, true);
 				solr.close();
 				return false;
