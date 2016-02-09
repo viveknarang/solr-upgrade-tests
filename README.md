@@ -7,13 +7,13 @@ The purpose of this program is to test rolling upgrades for Solr Cloud.
 Current Test Results
 --------------------
 
-                      | version | 5.3.0 | 5.3.1 | 5.3.2 | 5.4.0 | 5.4.1 |
-                      |---------|-------|-------|-------|-------|-------|
-                      | 5.2.1   | PASS  | PASS  |       |       |       |
-                      | 5.3.0   |       | PASS  |       | FAIL  | FAIL  |
-                      | 5.3.1   |       |       | PASS  | FAIL  | FAIL  |
-                      | 5.3.2   |       |       |       | FAIL  | FAIL  |
-                      | 5.4.0   |       |       |       |       | PASS  | 
+                                      | version | 5.3.0 | 5.3.1 | 5.3.2 | 5.4.0 | 5.4.1 |
+                                      |---------|-------|-------|-------|-------|-------|
+                                      | 5.2.1   | PASS  | PASS  |       |       |       |
+                                      | 5.3.0   |       | PASS  |       | FAIL  | FAIL  |
+                                      | 5.3.1   |       |       | PASS  | FAIL  | FAIL  |
+                                      | 5.3.2   |       |       |       | FAIL  | FAIL  |
+                                      | 5.4.0   |       |       |       |       | PASS  | 
 
 
 To Run
