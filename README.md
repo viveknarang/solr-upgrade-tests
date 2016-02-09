@@ -7,17 +7,13 @@ The purpose of this program is to test rolling upgrades for Solr Cloud.
 Current Test Results
 --------------------
 
-                    Upgrade from:   5.3.0   to  5.4.1           FAILED
-                    Upgrade from:   5.4.0   to  5.4.1           PASSED
-                    Upgrade from:   5.3.0   to  5.3.1           PASSED
-                    Upgrade from:   5.3.0   to  5.4.0           FAILED
-                    Upgrade from:   5.3.1   to  5.4.1           FAILED
-                    Upgrade from:   5.3.1   to  5.4.0           FAILED
-                    Upgrade from:   5.2.1   to  5.3.0           PASSED
-                    Upgrade from:   5.2.1   to  5.3.1           PASSED
-                    Upgrade from:   5.3.1   to  5.3.2           PASSED
-                    Upgrade from:   5.3.2   to  5.4.0           FAILED
-                    Upgrade from:   5.3.2   to  5.4.1           FAILED    
+                      | version | 5.3.0 | 5.3.1 | 5.3.2 | 5.4.0 | 5.4.1 |
+                      |---------|-------|-------|-------|-------|-------|
+                      | 5.2.1   | PASS  | PASS  |       |       |       |
+                      | 5.3.0   |       | PASS  |       | FAIL  | FAIL  |
+                      | 5.3.1   |       |       | PASS  | FAIL  | FAIL  |
+                      | 5.3.2   |       |       |       | FAIL  | FAIL  |
+                      | 5.4.0   |       |       |       |       | PASS  | 
 
 
 To Run
