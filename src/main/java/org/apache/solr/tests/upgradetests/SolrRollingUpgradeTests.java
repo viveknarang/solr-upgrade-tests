@@ -13,16 +13,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 
 public class SolrRollingUpgradeTests {
 
-	private static String WORK_DIRECTORY = System.getProperty("user.dir");
-	private static String DNAME = "SOLRUpdateTests";
-	public static String BASE_DIR = WORK_DIRECTORY + File.separator + DNAME + File.separator;
-	public static String TEMP_DIR = BASE_DIR + "temp" + File.separator;
-
-	public String ARG_VERSION_ONE = "-v1";
-	public String ARG_VERSION_TWO = "-v2";
-	public String ARG_NUM_SHARDS = "-Shards";
-	public String ARG_NUM_REPLICAS = "-Replicas";
-	public String ARG_NUM_NODES = "-Nodes";
+	private static String workDirectory = System.getProperty("user.dir");
+	private static String dname = "SolrUpdateTests";
+	public static String baseDir = workDirectory + File.separator + dname + File.separator;
+	public static String tempDir = baseDir + "temp" + File.separator;
 
 	public static void main(String args[]) throws IOException, InterruptedException, SolrServerException {
 
@@ -36,7 +30,7 @@ public class SolrRollingUpgradeTests {
 
 		try {
 
-			File baseDir = new File(BASE_DIR);
+			File baseDir = new File(baseDir);
 			Util.postMessage("** Checking if base directory exists ...", MessageType.ACTION, true);
 			if (!baseDir.exists()) {
 				Util.postMessage("Base directory does not exist, creating one ...", MessageType.ACTION, true);
@@ -44,7 +38,7 @@ public class SolrRollingUpgradeTests {
 			}
 
 			org.apache.solr.tests.upgradetests.Util.postMessage("** Checking if temp directory exists ...", MessageType.ACTION, true);
-			File tempDir = new File(TEMP_DIR);
+			File tempDir = new File(tempDir);
 			if (!tempDir.exists()) {
 				Util.postMessage("Temp directory does not exist Creating Temp directory ...", MessageType.ACTION, true);
 				tempDir.mkdir();
@@ -56,26 +50,22 @@ public class SolrRollingUpgradeTests {
 
 	}
 	
-	public void cleanAndExit(int exitValue, List<SolrNode> nodes, Zookeeper zookeeper, boolean removeFiles) throws IOException, InterruptedException {
+	private void cleanAndExit(int exitValue, List<SolrNode> nodes, Zookeeper zookeeper, boolean removeFiles) throws IOException, InterruptedException {
 		
 		for (SolrNode cnode : nodes) {
-
 			cnode.stop();
 			if (removeFiles) {
 					cnode.clean();
 			}
 			Thread.sleep(10000);
-			
 		}
-
 		zookeeper.stop();
 		zookeeper.clean();
-		
 		if (exitValue != 0) {
 			Util.postMessage("############# TEST FAILED/TERMINATED #############", MessageType.RESULT_ERRROR, true);
 		}
-		
 		System.exit(exitValue);
+
 	}
 
 	public void test(String args[]) throws IOException, InterruptedException, SolrServerException {
@@ -86,11 +76,11 @@ public class SolrRollingUpgradeTests {
 			argM.put(args[i], args[i + 1]);
 		}
 
-		String versionOne = argM.get(ARG_VERSION_ONE);
-		String versionTwo = argM.get(ARG_VERSION_TWO);
-		String numNodes = argM.get(ARG_NUM_NODES);
-		String numShards = argM.get(ARG_NUM_SHARDS);
-		String numReplicas = argM.get(ARG_NUM_REPLICAS);
+		String versionOne = argM.get("-v1");
+		String versionTwo = argM.get("-v2");
+		String numNodes = argM.get("-Nodes");
+		String numShards = argM.get("-Shards");
+		String numReplicas = argM.get("-Replicas");
 
 		int nodesCount = Integer.parseInt(numNodes);
 		String collectionName = UUID.randomUUID().toString();
