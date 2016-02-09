@@ -98,13 +98,9 @@ public class SolrRollingUpgradeTests {
 			node.start();
 			Thread.sleep(1000);
 			nodes.add(node);
-			
 			if(i == nodesCount) {
 				node.createCollection(collectionName, numShards, numReplicas);
 			}
-
-			node = null;		
-			
 		}
 		
 		int nodeUpCount = client.getLiveNodes();
@@ -119,13 +115,9 @@ public class SolrRollingUpgradeTests {
 		for (SolrNode unode : nodes) {
 
 			unode.stop();
-			
 			Thread.sleep(30000);
-
 			unode.upgrade(versionTwo);
-
 			Thread.sleep(30000);
-
 			unode.start();
 			
 			if (!client.verifyData(collectionName)) {
