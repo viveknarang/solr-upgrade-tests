@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 public class SolrNode {
 
 	final static Logger logger = Logger.getLogger(SolrNode.class);
-	public static String URL_BASE = "http://archive.apache.org/dist/lucene/solr/";
+	public static final String URL_BASE = "http://archive.apache.org/dist/lucene/solr/";
 
 	private String nodeDirectory;
 	private String port;
