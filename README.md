@@ -15,7 +15,7 @@ Current Test Results
 | 5.3.2               |       |       |       | FAIL  | FAIL  |
 | 5.4.0               |       |       |       |       | PASS  |
 
-Logs for 5.3.2 to 5.4.1: 106.186.125.89/logs.tar.gz
+Logs for 5.3.2 to 5.4.1: http://106.186.125.89/logs.tar.gz
 
 To Run
 ------
