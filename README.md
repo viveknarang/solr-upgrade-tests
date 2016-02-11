@@ -45,10 +45,10 @@ Following is the summary of the steps that the program follows to test the rolli
 3. Create a Test collection
 4. Insert a set of 1000 documents
 5. Stop each node one by one, upgrade each node by replacing lib folder on server and then start each node
-6. Check if the /live_nodes section list the upgraded node
+6. Check if the /live_nodes has the upgraded node
 7. Check if all the documents are available from the collection
-8. If 5 and 6 passes, the program identifies the test as successful
-9. Upon failure of either 5 or 6, the program declares the test as failed
+8. If 6 and 7 pass, the program identifies the test as successful
+9. Upon failure of either 6 or 7, the program declares the test as failed
 10. If test passed, shutdown the nodes and cleaning zookeeper data
 
 
@@ -58,3 +58,4 @@ Todo
 1. Running against unreleased (master/branch_5x)
 2. Making it easier to add more tests to this framework
 3. Code cleanup.
+4. Have ability to specify any version of SolrJ to be used in the tests. (Currently, this is hardcoded in the pom.xml, which should be easy to change configurably).
