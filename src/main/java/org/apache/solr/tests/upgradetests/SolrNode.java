@@ -336,8 +336,7 @@ public class SolrNode {
 		Util.postMessage("** Attempting upgrade on the node by replacing lib folder ..." + "From: " + version + " To: "
 				+ toVersion, MessageType.ACTION, true);
 		try {
-			String localPath = File.separator + "server" + File.separator + "solr-webapp" + File.separator + "webapp"
-					+ File.separator + "WEB-INF" + File.separator + "lib";
+			String localPath = File.separator + "server" + File.separator + "solr-webapp" + File.separator + "webapp";
 
 			File src = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion + localPath);
 			File dest = new File(nodeDirectory + "solr-" + version + localPath);
