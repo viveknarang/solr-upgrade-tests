@@ -1,8 +1,10 @@
 package org.apache.solr.tests.upgradetests;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
@@ -105,6 +107,40 @@ public class Util {
 			bos.close();
 
 		}
+	}
+	
+	public static File checkoutAndBuild(String gitUrl, String branch) {
+		
+		gitUrl = "https://github.com/apache/lucene-solr.git";
+		
+		postMessage("Getting source to build from: " + gitUrl + " and branch: " + branch, MessageType.ACTION, true);
+		Runtime rt = Runtime.getRuntime();
+		Process proc = null;
+		StreamGobbler errorGobbler = null;
+		StreamGobbler outputGobbler = null;
+
+		try {
+
+			proc = rt.exec("git clone " + gitUrl + " " + SolrRollingUpgradeTests.TEMP_DIR + UUID.randomUUID().toString() + File.separator);
+
+			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+
+			errorGobbler.start();
+			outputGobbler.start();
+			proc.waitFor();
+
+		} catch (Exception e) {
+
+			postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+
+		} finally {
+
+			proc.destroy();
+
+		}
+		
+		return null;
 	}
 
 }
