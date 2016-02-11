@@ -112,33 +112,72 @@ public class Util {
 	public static File checkoutAndBuild(String gitUrl, String branch) {
 		
 		gitUrl = "https://github.com/apache/lucene-solr.git";
+		String sourceFolder = SolrRollingUpgradeTests.TEMP_DIR + UUID.randomUUID().toString() + File.separator;
 		
-		postMessage("Getting source to build from: " + gitUrl + " and branch: " + branch, MessageType.ACTION, true);
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
-
-		try {
-
-			proc = rt.exec("git clone " + gitUrl + " " + SolrRollingUpgradeTests.TEMP_DIR + UUID.randomUUID().toString() + File.separator);
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-
-		} catch (Exception e) {
-
-			postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
-		} finally {
-
-			proc.destroy();
-
+		{
+		
+				postMessage("Getting source to build from: " + gitUrl + " and branch: " + branch, MessageType.ACTION, true);
+				Runtime rt = Runtime.getRuntime();
+				Process proc = null;
+				StreamGobbler errorGobbler = null;
+				StreamGobbler outputGobbler = null;
+		
+				try {
+		
+					proc = rt.exec("git clone " + gitUrl + " " + sourceFolder);
+		
+					errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+					outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+		
+					errorGobbler.start();
+					outputGobbler.start();
+					proc.waitFor();
+		
+				} catch (Exception e) {
+		
+					postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+		
+				} finally {
+		
+					proc.destroy();
+		
+				}
+		
 		}
+
+		
+		{
+			
+			postMessage("Checking out branch: " + branch, MessageType.ACTION, true);
+			Runtime rt = Runtime.getRuntime();
+			Process proc = null;
+			StreamGobbler errorGobbler = null;
+			StreamGobbler outputGobbler = null;
+	
+			try {
+	
+				proc = rt.exec(new String[] {"cd " + sourceFolder, "git checkout " + branch});
+	
+				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+	
+				errorGobbler.start();
+				outputGobbler.start();
+				proc.waitFor();
+	
+			} catch (Exception e) {
+	
+				postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+	
+			} finally {
+	
+				proc.destroy();
+	
+			}
+	
+		
+		}
+		
 		
 		return null;
 	}
