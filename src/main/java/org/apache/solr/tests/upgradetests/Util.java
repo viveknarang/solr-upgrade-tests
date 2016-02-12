@@ -156,7 +156,7 @@ public class Util {
 	
 			try {
 	
-				proc = rt.exec(new String[] {"cd " + sourceFolder, "git checkout " + branch});
+				proc = rt.exec(new String[] {"cd /", "cd " + sourceFolder, "git checkout " + branch});
 	
 				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
