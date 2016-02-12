@@ -156,7 +156,7 @@ public class Util {
 	
 			try {
 	
-				proc = rt.exec(new String[] {"cd /", "cd " + sourceFolder, "git checkout " + branch});
+				proc = rt.exec("git checkout " + branch, null, new File(sourceFolder));
 	
 				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
@@ -169,12 +169,7 @@ public class Util {
 	
 				postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
 	
-			} finally {
-	
-				proc.destroy();
-	
-			}
-	
+			} 	
 		
 		}
 		
