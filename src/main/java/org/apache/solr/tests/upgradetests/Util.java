@@ -212,7 +212,7 @@ public class Util {
 		
 		}
 		
-		File returnFile = Util.listFile(sourceFolder, ".zip");
+		File returnFile = Util.listFile(sourceFolder + "/solr/package", ".zip");
 		
 		String currentName = returnFile.getName();
 		currentName = currentName.replaceFirst("-SNAPSHOT.zip", ".zip");
