@@ -217,9 +217,8 @@ public class Util {
 		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator +"package", ".zip");
 		
 		String currentName = returnFile.getName();
-		currentName = currentName.replaceFirst("-SNAPSHOT.zip", ".zip");
 		System.out.println(currentName);
-
+		postMessage("Using file: " + currentName, MessageType.ACTION, true);
 		unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator);
 		
 		return null;
