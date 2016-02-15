@@ -2,12 +2,10 @@ package org.apache.solr.tests.upgradetests;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
@@ -111,9 +109,9 @@ public class Util {
 
 		}
 	}
-	
+
 	public static File checkoutAndBuild(String gitUrl, String branch) {
-		
+
 		gitUrl = "https://github.com/apache/lucene-solr.git";
 		String sourceFolder = SolrRollingUpgradeTests.TEMP_DIR + UUID.randomUUID().toString() + File.separator;
 		File checkoutFolder = new File(sourceFolder);
@@ -126,151 +124,140 @@ public class Util {
 				postMessage("Folder " + sourceFolder + " Creation Failed ...", MessageType.RESULT_ERRROR, true);
 			}
 		}
-		
+
 		{
-		
-				postMessage("Getting source to build from: " + gitUrl + " and branch: " + branch, MessageType.ACTION, true);
-				Runtime rt = Runtime.getRuntime();
-				Process proc = null;
-				StreamGobbler errorGobbler = null;
-				StreamGobbler outputGobbler = null;
-		
-				try {
-		
-					proc = rt.exec("git clone " + gitUrl + " " + sourceFolder);
-		
-					errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-					outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-		
-					errorGobbler.start();
-					outputGobbler.start();
-					proc.waitFor();
-		
-				} catch (Exception e) {
-		
-					postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-		
-				} finally {
-		
-					proc.destroy();
-		
-				}
-		
+
+			postMessage("Getting source to build from: " + gitUrl + " and branch: " + branch, MessageType.ACTION, true);
+			Runtime rt = Runtime.getRuntime();
+			Process proc = null;
+			StreamGobbler errorGobbler = null;
+			StreamGobbler outputGobbler = null;
+
+			try {
+
+				proc = rt.exec("git clone " + gitUrl + " " + sourceFolder);
+
+				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+
+				errorGobbler.start();
+				outputGobbler.start();
+				proc.waitFor();
+
+			} catch (Exception e) {
+
+				postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+
+			} finally {
+
+				proc.destroy();
+
+			}
+
 		}
 
-		
 		{
-			
+
 			postMessage("Checking out branch: " + branch, MessageType.ACTION, true);
 			Runtime rt = Runtime.getRuntime();
 			Process proc = null;
 			StreamGobbler errorGobbler = null;
 			StreamGobbler outputGobbler = null;
-	
+
 			try {
-	
+
 				proc = rt.exec("git checkout " + branch, null, new File(sourceFolder));
-	
+
 				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-	
+
 				errorGobbler.start();
 				outputGobbler.start();
 				proc.waitFor();
-	
+
 			} catch (Exception e) {
-	
+
 				postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-	
-			} 	
-		
+
+			}
+
 		}
 
-		
 		{
-			
+
 			postMessage("Building package: " + branch, MessageType.ACTION, true);
 			Runtime rt = Runtime.getRuntime();
 			Process proc = null;
 			StreamGobbler errorGobbler = null;
 			StreamGobbler outputGobbler = null;
-	
+
 			try {
-	
+
 				proc = rt.exec("ant package ", null, new File(sourceFolder + "solr" + File.separator));
-	
+
 				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-	
+
 				errorGobbler.start();
 				outputGobbler.start();
 				proc.waitFor();
-	
+
 			} catch (Exception e) {
-	
+
 				postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-	
-			} 	
-		
+
+			}
+
 		}
-		
-		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator +"package", ".zip");
-		
+
+		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator + "package", ".zip");
+
 		String currentName = returnFile.getName();
 		System.out.println(currentName);
 		postMessage("Using file: " + currentName, MessageType.ACTION, true);
-		unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator);
-		 
+
+		Runtime rt = Runtime.getRuntime();
+		Process proc = null;
+		StreamGobbler errorGobbler = null;
+		StreamGobbler outputGobbler = null;
+
+		try {
+
+			proc = rt.exec(
+					"tar -xf " + sourceFolder + "solr" + File.separator + "package" + File.separator + currentName,
+					null, new File(SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator));
+
+			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+
+			errorGobbler.start();
+			outputGobbler.start();
+			proc.waitFor();
+
+		} catch (Exception e) {
+
+			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+
+		}
+
 		return null;
 	}
-	
-	
+
 	public static File listFile(String folder, String ext) {
 
 		GenericExtFilter filter = new GenericExtFilter(ext);
 
 		File dir = new File(folder);
-		
+
 		String[] list = dir.list(filter);
 		for (String file : list) {
-			String temp = new StringBuffer(folder).append(File.separator)
-					.append(file).toString();
+			String temp = new StringBuffer(folder).append(File.separator).append(file).toString();
 			postMessage("File :" + temp, MessageType.RESULT_SUCCESS, true);
 			File returnFile = new File(temp);
 			return returnFile;
-			
+
 		}
 		return null;
-	}
-	
-	public static void unZip(String zipPath, String destinationPath) {
-		
-		ZipInputStream zipIn = null;
-
-		try {
-
-			Util.postMessage("** Attempting to unzip ...", MessageType.ACTION, true);
-			zipIn = new ZipInputStream(
-					new FileInputStream(zipPath));
-			ZipEntry entry = zipIn.getNextEntry();
-			while (entry != null) {
-				String filePath = destinationPath + entry.getName();
-				if (!entry.isDirectory()) {
-					Util.postMessage("\r Unzipping to : " + destinationPath + " : " + entry.getName(),
-							MessageType.ACTION, true);
-					Util.extractFile(zipIn, filePath);
-				} else {
-					File dirx = new File(filePath);
-					dirx.mkdir();
-				}
-				zipIn.closeEntry();
-				entry = zipIn.getNextEntry();
-			}
-			zipIn.close();
-
-		} catch (Exception e) {
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-		}
 	}
 
 }
