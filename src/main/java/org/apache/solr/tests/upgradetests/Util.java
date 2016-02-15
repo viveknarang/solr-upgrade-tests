@@ -3,6 +3,7 @@ package org.apache.solr.tests.upgradetests;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
@@ -214,5 +215,41 @@ public class Util {
 		
 		return null;
 	}
+	
+	
+	public static void listFile(String folder, String ext) {
 
+		GenericExtFilter filter = new GenericExtFilter(ext);
+
+		File dir = new File(folder);
+		
+		if(dir.isDirectory()==false){
+			System.out.println("Directory does not exists : " + folder);
+			return;
+		}
+		
+		// list out all the file name and filter by the extension
+		String[] list = dir.list(filter);
+
+		for (String file : list) {
+			String temp = new StringBuffer(folder).append(File.separator)
+					.append(file).toString();
+			System.out.println("file : " + temp);
+		}
+	}
+
+
+}
+
+class GenericExtFilter implements FilenameFilter {
+
+	private String ext;
+
+	public GenericExtFilter(String ext) {
+		this.ext = ext;
+	}
+
+	public boolean accept(File dir, String name) {
+		return (name.endsWith(ext));
+	}
 }
