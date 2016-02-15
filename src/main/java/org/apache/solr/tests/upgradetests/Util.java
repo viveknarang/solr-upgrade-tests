@@ -2,10 +2,12 @@ package org.apache.solr.tests.upgradetests;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
@@ -195,7 +197,7 @@ public class Util {
 	
 			try {
 	
-				proc = rt.exec("ant package ", null, new File(sourceFolder + "solr/"));
+				proc = rt.exec("ant package ", null, new File(sourceFolder + "solr" + File.separator));
 	
 				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
@@ -212,14 +214,13 @@ public class Util {
 		
 		}
 		
-		File returnFile = Util.listFile(sourceFolder + "/solr/package", ".zip");
+		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator +"package", ".zip");
 		
 		String currentName = returnFile.getName();
 		currentName = currentName.replaceFirst("-SNAPSHOT.zip", ".zip");
 		System.out.println(currentName);
-		returnFile.renameTo(new File(currentName));
-		System.out.println(returnFile.getName());
-		
+
+		unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator);
 		
 		return null;
 	}
@@ -241,6 +242,36 @@ public class Util {
 			
 		}
 		return null;
+	}
+	
+	public static void unZip(String zipPath, String destinationPath) {
+		
+		ZipInputStream zipIn = null;
+
+		try {
+
+			Util.postMessage("** Attempting to unzip the downloaded release ...", MessageType.ACTION, true);
+			zipIn = new ZipInputStream(
+					new FileInputStream(zipPath));
+			ZipEntry entry = zipIn.getNextEntry();
+			while (entry != null) {
+				String filePath = destinationPath + entry.getName();
+				if (!entry.isDirectory()) {
+					Util.postMessage("\r Unzipping to : " + destinationPath + " : " + entry.getName(),
+							MessageType.ACTION, true);
+					Util.extractFile(zipIn, filePath);
+				} else {
+					File dirx = new File(filePath);
+					dirx.mkdir();
+				}
+				zipIn.closeEntry();
+				entry = zipIn.getNextEntry();
+			}
+			zipIn.close();
+
+		} catch (Exception e) {
+			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+		}
 	}
 
 }
