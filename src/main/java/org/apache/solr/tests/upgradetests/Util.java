@@ -115,7 +115,13 @@ public class Util {
 		String sourceFolder = SolrRollingUpgradeTests.TEMP_DIR + UUID.randomUUID().toString() + File.separator;
 		File checkoutFolder = new File(sourceFolder);
 		if (!checkoutFolder.exists()) {
-			checkoutFolder.mkdir();
+			postMessage("Folder " + sourceFolder + " Does not exist creating it ..", MessageType.RESULT_ERRROR, true);
+			boolean folder = checkoutFolder.mkdir();
+			if (folder) {
+				postMessage("Folder " + sourceFolder + " Created ...", MessageType.RESULT_SUCCESS, true);
+			} else {
+				postMessage("Folder " + sourceFolder + " Creation Failed ...", MessageType.RESULT_ERRROR, true);
+			}
 		}
 		
 		{
