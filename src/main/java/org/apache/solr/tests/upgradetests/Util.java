@@ -217,27 +217,23 @@ public class Util {
 	}
 	
 	
-	public static void listFile(String folder, String ext) {
+	public static File listFile(String folder, String ext) {
 
 		GenericExtFilter filter = new GenericExtFilter(ext);
 
 		File dir = new File(folder);
 		
-		if(dir.isDirectory()==false){
-			System.out.println("Directory does not exists : " + folder);
-			return;
-		}
-		
-		// list out all the file name and filter by the extension
 		String[] list = dir.list(filter);
-
 		for (String file : list) {
 			String temp = new StringBuffer(folder).append(File.separator)
 					.append(file).toString();
-			System.out.println("file : " + temp);
+			postMessage("File :" + temp, MessageType.RESULT_SUCCESS, true);
+			File returnFile = new File(temp);
+			return returnFile;
+			
 		}
+		return null;
 	}
-
 
 }
 

@@ -71,7 +71,14 @@ public class SolrRollingUpgradeTests {
 	public void test(String args[]) throws IOException, InterruptedException, SolrServerException {
 		
 		//Util.checkoutAndBuild("https://github.com/apache/lucene-solr.git", "branch_5x");
-		Util.listFile(SolrRollingUpgradeTests.TEMP_DIR +"686952ac-d17f-4c7c-a5ed-a7b572a9476e/solr/package", ".zip");
+		File returnFile = Util.listFile(SolrRollingUpgradeTests.TEMP_DIR +"686952ac-d17f-4c7c-a5ed-a7b572a9476e/solr/package", ".zip");
+		String currentName = returnFile.getName();
+		currentName = currentName.replaceFirst("-SNAPSHOT.zip", ".zip");
+		returnFile.renameTo(new File(currentName));
+
+		File newFile = Util.listFile(SolrRollingUpgradeTests.TEMP_DIR +"686952ac-d17f-4c7c-a5ed-a7b572a9476e/solr/package", ".zip");
+		
+		
 		System.exit(0);
 
 		Map<String, String> argM = new HashMap<String, String>();
