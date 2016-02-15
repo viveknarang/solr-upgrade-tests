@@ -220,12 +220,18 @@ public class Util {
 		Process proc = null;
 		StreamGobbler errorGobbler = null;
 		StreamGobbler outputGobbler = null;
-
+		
+		File destination = new File(SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator);
+		
+		if(!destination.exists()) {
+			destination.mkdir();
+		}
+		
 		try {
 
 			proc = rt.exec(
 					"tar -xf " + sourceFolder + "solr" + File.separator + "package" + File.separator + currentName,
-					null, new File(SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator));
+					null, destination);
 
 			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
