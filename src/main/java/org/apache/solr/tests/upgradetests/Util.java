@@ -220,7 +220,7 @@ public class Util {
 		System.out.println(currentName);
 		postMessage("Using file: " + currentName, MessageType.ACTION, true);
 		unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator);
-		
+		 
 		return null;
 	}
 	
