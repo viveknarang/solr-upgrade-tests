@@ -212,6 +212,14 @@ public class Util {
 		
 		}
 		
+		File returnFile = Util.listFile(sourceFolder, ".zip");
+		
+		String currentName = returnFile.getName();
+		currentName = currentName.replaceFirst("-SNAPSHOT.zip", ".zip");
+		System.out.println(currentName);
+		returnFile.renameTo(new File(currentName));
+		System.out.println(returnFile.getName());
+		
 		
 		return null;
 	}
