@@ -73,7 +73,8 @@ public class SolrRollingUpgradeTests {
 		//Util.checkoutAndBuild("https://github.com/apache/lucene-solr.git", "branch_5x");
 		
 		String sourceFolder = SolrRollingUpgradeTests.TEMP_DIR + "4f64a952-8afb-4484-aa4d-3528091c28bd/";
-		
+		Util.postMessage(sourceFolder, MessageType.RESULT_SUCCESS, true);
+
 		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator +"package", ".zip");
 		Util.postMessage(sourceFolder, MessageType.RESULT_SUCCESS, true);
 		String currentName = returnFile.getName();
