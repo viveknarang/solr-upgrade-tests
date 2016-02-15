@@ -75,7 +75,7 @@ public class SolrRollingUpgradeTests {
 		String sourceFolder = SolrRollingUpgradeTests.TEMP_DIR + "4f64a952-8afb-4484-aa4d-3528091c28bd/";
 		
 		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator +"package", ".zip");
-		
+		Util.postMessage(sourceFolder, MessageType.RESULT_SUCCESS, true);
 		String currentName = returnFile.getName();
 		System.out.println(currentName);
 
