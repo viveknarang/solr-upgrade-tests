@@ -219,7 +219,7 @@ public class Util {
 		String currentName = returnFile.getName();
 		System.out.println(currentName);
 		postMessage("Using file: " + currentName, MessageType.ACTION, true);
-		unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator + currentName.substring(0, (currentName.length() - 1) - 3));
+		unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator);
 		 
 		return null;
 	}
@@ -249,7 +249,7 @@ public class Util {
 
 		try {
 
-			Util.postMessage("** Attempting to unzip the downloaded release ...", MessageType.ACTION, true);
+			Util.postMessage("** Attempting to unzip ...", MessageType.ACTION, true);
 			zipIn = new ZipInputStream(
 					new FileInputStream(zipPath));
 			ZipEntry entry = zipIn.getNextEntry();
