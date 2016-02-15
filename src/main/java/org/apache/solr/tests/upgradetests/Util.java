@@ -219,7 +219,7 @@ public class Util {
 		String currentName = returnFile.getName();
 		System.out.println(currentName);
 		postMessage("Using file: " + currentName, MessageType.ACTION, true);
-		unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator);
+		unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator + currentName.substring(0, (currentName.length() - 1) - 4));
 		 
 		return null;
 	}
