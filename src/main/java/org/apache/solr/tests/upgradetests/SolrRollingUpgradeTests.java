@@ -70,7 +70,18 @@ public class SolrRollingUpgradeTests {
 
 	public void test(String args[]) throws IOException, InterruptedException, SolrServerException {
 		
-		Util.checkoutAndBuild("https://github.com/apache/lucene-solr.git", "branch_5x");
+		//Util.checkoutAndBuild("https://github.com/apache/lucene-solr.git", "branch_5x");
+		
+		String sourceFolder = SolrRollingUpgradeTests.TEMP_DIR + "4f64a952-8afb-4484-aa4d-3528091c28bd/";
+		
+		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator +"package", ".zip");
+		
+		String currentName = returnFile.getName();
+		System.out.println(currentName);
+
+		Util.postMessage("Using file: " + currentName, MessageType.ACTION, true);
+		Util.unZip(sourceFolder + "solr"+ File.separator +"package" + File.separator + currentName, SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator + currentName.substring(0, (currentName.length() - 1) - 3));
+		
 		System.exit(0);
 
 		Map<String, String> argM = new HashMap<String, String>();
