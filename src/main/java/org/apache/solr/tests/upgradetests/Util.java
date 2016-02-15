@@ -113,6 +113,10 @@ public class Util {
 		
 		gitUrl = "https://github.com/apache/lucene-solr.git";
 		String sourceFolder = SolrRollingUpgradeTests.TEMP_DIR + UUID.randomUUID().toString() + File.separator;
+		File checkoutFolder = new File(sourceFolder);
+		if (!checkoutFolder.exists()) {
+			checkoutFolder.mkdir();
+		}
 		
 		{
 		
