@@ -210,7 +210,7 @@ public class Util {
 
 		}
 
-		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator + "package", ".zip");
+		File returnFile = Util.listFile(sourceFolder + "solr" + File.separator + "package", ".tgz");
 
 		String currentName = returnFile.getName();
 		System.out.println(currentName);
