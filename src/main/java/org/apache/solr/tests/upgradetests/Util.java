@@ -246,7 +246,7 @@ public class Util {
 
 		}
 
-		return null;
+		return new File(destination.getName() + currentName.substring(0, (currentName.length() - 1) - 3));
 	}
 
 	public static File listFile(String folder, String ext) {
