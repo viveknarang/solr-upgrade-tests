@@ -74,11 +74,9 @@ public class SolrRollingUpgradeTests {
 		File returnFile = Util.listFile(SolrRollingUpgradeTests.TEMP_DIR +"686952ac-d17f-4c7c-a5ed-a7b572a9476e/solr/package", ".zip");
 		String currentName = returnFile.getName();
 		currentName = currentName.replaceFirst("-SNAPSHOT.zip", ".zip");
+		System.out.println(currentName);
 		returnFile.renameTo(new File(currentName));
-
-		File newFile = Util.listFile(SolrRollingUpgradeTests.TEMP_DIR +"686952ac-d17f-4c7c-a5ed-a7b572a9476e/solr/package", ".zip");
-		
-		
+		System.out.println(returnFile.getName());
 		System.exit(0);
 
 		Map<String, String> argM = new HashMap<String, String>();
