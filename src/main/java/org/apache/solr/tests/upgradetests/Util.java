@@ -172,6 +172,34 @@ public class Util {
 			} 	
 		
 		}
+
+		
+		{
+			
+			postMessage("Building package: " + branch, MessageType.ACTION, true);
+			Runtime rt = Runtime.getRuntime();
+			Process proc = null;
+			StreamGobbler errorGobbler = null;
+			StreamGobbler outputGobbler = null;
+	
+			try {
+	
+				proc = rt.exec("ant package ", null, new File(sourceFolder + "solr/"));
+	
+				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+	
+				errorGobbler.start();
+				outputGobbler.start();
+				proc.waitFor();
+	
+			} catch (Exception e) {
+	
+				postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+	
+			} 	
+		
+		}
 		
 		
 		return null;
