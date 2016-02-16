@@ -78,163 +78,42 @@ public class Zookeeper {
 		File urelease = new File(SolrRollingUpgradeTests.TEMP_DIR + "zookeeper-" + ZOOKEEPER_RELEASE);
 		if (!urelease.exists()) {
 
-			{
-				Runtime rt = Runtime.getRuntime();
-				Process proc = null;
-				StreamGobbler errorGobbler = null;
-				StreamGobbler outputGobbler = null;
+			Util.execute("tar -xf " + SolrRollingUpgradeTests.TEMP_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + ".tar.gz"
+					+ " -C " + ZOOKEEPER_DIR);
 
-				try {
-
-					proc = rt.exec("tar -xf " + SolrRollingUpgradeTests.TEMP_DIR + "zookeeper-" + ZOOKEEPER_RELEASE
-							+ ".tar.gz" + " -C " + ZOOKEEPER_DIR);
-
-					errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-					outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-					errorGobbler.start();
-					outputGobbler.start();
-					proc.waitFor();
-
-				} catch (Exception e) {
-
-					Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
-				}
-			}
-
-			Runtime rt = Runtime.getRuntime();
-			Process proc = null;
-			StreamGobbler errorGobbler = null;
-			StreamGobbler outputGobbler = null;
-
-			try {
-
-				proc = rt.exec("mv " + ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + "conf"
-						+ File.separator + "zoo_sample.cfg " + ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE
-						+ File.separator + "conf" + File.separator + "zoo.cfg");
-
-				errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-				outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-				errorGobbler.start();
-				outputGobbler.start();
-				proc.waitFor();
-
-			} catch (Exception e) {
-
-				Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
-			}
+			Util.execute("mv " + ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + "conf"
+					+ File.separator + "zoo_sample.cfg " + ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE
+					+ File.separator + "conf" + File.separator + "zoo.cfg");
 
 		}
 	}
 
-	@SuppressWarnings("finally")
 	public int start() {
 
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
-
-		try {
-
-			Util.postMessage("** Attempting to start zookeeper ...", MessageType.ACTION, true);
-
-			new File(ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + zooCommand)
-					.setExecutable(true);
-			proc = rt.exec(ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + zooCommand + " start");
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
-		} finally {
-
-			return proc.exitValue();
-
-		}
+		Util.postMessage("** Attempting to start zookeeper ...", MessageType.ACTION, true);
+		
+		new File(ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + zooCommand).setExecutable(true);
+		
+		return Util.execute(ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + zooCommand + " start");
 
 	}
 
-	@SuppressWarnings("finally")
 	public int stop() {
 
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
+		Util.postMessage("** Attempting to stop zookeeper ...", MessageType.ACTION, true);
 
-		try {
+		new File(ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + zooCommand).setExecutable(true);
 
-			Util.postMessage("** Attempting to stop zookeeper ...", MessageType.ACTION, true);
-
-			new File(ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + zooCommand)
-					.setExecutable(true);
-			proc = rt.exec(ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + zooCommand + " stop");
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
-		} finally {
-
-			return proc.exitValue();
-
-		}
+		return Util.execute(ZOOKEEPER_DIR + "zookeeper-" + ZOOKEEPER_RELEASE + File.separator + zooCommand + " stop");
 
 	}
 
-	@SuppressWarnings("finally")
 	public int clean() throws IOException, InterruptedException {
 
 		Util.postMessage("Deleting directory for zookeeper data ", MessageType.ACTION, true);
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
 
-		try {
-
-			proc = rt.exec("rm -r -f /tmp/zookeeper/");
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
-		} finally {
-
-			return proc.exitValue();
-
-		}
-
+		return Util.execute("rm -r -f /tmp/zookeeper/");	
+			
 	}
 
 	public String getZookeeperIp() {

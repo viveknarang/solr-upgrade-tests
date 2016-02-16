@@ -120,7 +120,8 @@ public class SolrNode {
 				while (entry != null) {
 					String filePath = SolrRollingUpgradeTests.TEMP_DIR + File.separator + entry.getName();
 					if (!entry.isDirectory()) {
-						Util.postMessage("\r Unzipping to : " + SolrRollingUpgradeTests.TEMP_DIR + " : " + entry.getName(),
+						Util.postMessage(
+								"\r Unzipping to : " + SolrRollingUpgradeTests.TEMP_DIR + " : " + entry.getName(),
 								MessageType.ACTION, true);
 						Util.extractFile(zipIn, filePath);
 					} else {
@@ -138,127 +139,49 @@ public class SolrNode {
 
 			}
 
-		} 
+		}
 
 		File node = new File(nodeDirectory + "solr-" + version);
 		node.mkdir();
 		FileUtils.copyDirectory(new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version), node);
-		
+
 	}
 
-	@SuppressWarnings("finally")
 	public int start() {
 
 		Util.postMessage("** Starting Solr Node ...", MessageType.ACTION, true);
 
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
+		new File(nodeDirectory + "solr-" + version + File.separator + solrCommand).setExecutable(true);
 
-		try {
-
-			new File(nodeDirectory + "solr-" + version + File.separator + solrCommand).setExecutable(true);
-			proc = rt.exec(nodeDirectory + "solr-" + version + File.separator + solrCommand + " start -p " + port
-					+ " -z " + zooKeeperIp + ":" + zooKeeperPort);
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-			return -1;
-
-		} finally {
-
-			return proc.exitValue();
-
-		}
+		return Util.execute(nodeDirectory + "solr-" + version + File.separator + solrCommand + " start -p " + port
+				+ " -z " + zooKeeperIp + ":" + zooKeeperPort);
 
 	}
 
-	@SuppressWarnings("finally")
 	public int stop() {
 
 		Util.postMessage("** Stopping Solr Node ...", MessageType.ACTION, true);
 
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
+		new File(nodeDirectory + "solr-" + version + File.separator + solrCommand).setExecutable(true);
 
-		try {
-
-			new File(nodeDirectory + "solr-" + version + File.separator + solrCommand).setExecutable(true);
-			proc = rt.exec(nodeDirectory + "solr-" + version + File.separator + solrCommand + " stop -p " + port
-					+ " -z " + zooKeeperIp + ":" + zooKeeperPort);
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-			return -1;
-
-		} finally {
-
-			return proc.exitValue();
-		}
+		return Util.execute(nodeDirectory + "solr-" + version + File.separator + solrCommand + " stop -p " + port
+				+ " -z " + zooKeeperIp + ":" + zooKeeperPort);
 
 	}
 
-	@SuppressWarnings("finally")
 	public int createCollection(String collectionName, String shards, String replicationFactor)
 			throws IOException, InterruptedException {
 
 		Util.postMessage("** Creating collection, configuring shards and replication factor ... ", MessageType.ACTION,
 				true);
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
 
-		try {
-
-			proc = rt.exec(nodeDirectory + "solr-" + version + File.separator + solrCommand + " create_collection -c "
-					+ collectionName + " -shards " + shards + " -replicationFactor " + replicationFactor);
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-			return -1;
-
-		} finally {
-
-			return proc.exitValue();
-
-		}
+		return Util.execute(nodeDirectory + "solr-" + version + File.separator + solrCommand + " create_collection -c "
+				+ collectionName + " -shards " + shards + " -replicationFactor " + replicationFactor);
 
 	}
 
 	public void upgrade(String toVersion) throws IOException, InterruptedException {
-		
-		
+
 		File release = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion + ".zip");
 		if (!release.exists()) {
 
@@ -327,10 +250,10 @@ public class SolrNode {
 
 			}
 
-		} 
-		
+		}
+
 		Thread.sleep(1000);
-		
+
 		this.stop();
 
 		Util.postMessage("** Attempting upgrade on the node by replacing lib folder ..." + "From: " + version + " To: "
@@ -387,37 +310,12 @@ public class SolrNode {
 				true);
 		return getFreePort();
 	}
-	
-	@SuppressWarnings("finally")
+
 	public int clean() {
 
 		Util.postMessage("Deleting node ... ", MessageType.ACTION, true);
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
 
-		try {
-
-			proc = rt.exec("rm -r -f " + nodeDirectory);
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
-		} finally {
-
-			return proc.exitValue();
-
-		}
+		return Util.execute("rm -r -f " + nodeDirectory);
 
 	}
 

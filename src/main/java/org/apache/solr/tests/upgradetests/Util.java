@@ -52,6 +52,36 @@ public class Util {
 	}
 
 	@SuppressWarnings("finally")
+	public static int execute(String command) {
+
+		Runtime rt = Runtime.getRuntime();
+		Process proc = null;
+		StreamGobbler errorGobbler = null;
+		StreamGobbler outputGobbler = null;
+
+		try {
+
+			proc = rt.exec(command);
+
+			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+
+			errorGobbler.start();
+			outputGobbler.start();
+			proc.waitFor();
+			return proc.exitValue();
+
+		} catch (Exception e) {
+
+			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+
+		} finally {
+			return proc.exitValue();
+		}
+
+	}
+
+	@SuppressWarnings("finally")
 	public static int deleteDirectory(String directory) throws IOException, InterruptedException {
 
 		postMessage("Deleting directory: " + directory, MessageType.ACTION, true);
@@ -220,13 +250,13 @@ public class Util {
 		Process proc = null;
 		StreamGobbler errorGobbler = null;
 		StreamGobbler outputGobbler = null;
-		
+
 		File destination = new File(SolrRollingUpgradeTests.BASE_DIR + UUID.randomUUID().toString() + File.separator);
-		
-		if(!destination.exists()) {
+
+		if (!destination.exists()) {
 			destination.mkdir();
 		}
-		
+
 		try {
 
 			proc = rt.exec(
@@ -246,7 +276,8 @@ public class Util {
 
 		}
 
-		return new File(destination.getName() + File.separator +currentName.substring(0, (currentName.length() - 1) - 3));
+		return new File(
+				destination.getName() + File.separator + currentName.substring(0, (currentName.length() - 1) - 3));
 	}
 
 	public static File listFile(String folder, String ext) {
