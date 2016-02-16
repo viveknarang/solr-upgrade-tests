@@ -33,7 +33,7 @@ public class SolrNode {
 
 		solrCommand = System.getProperty("os.name") != null && System.getProperty("os.name").startsWith("Windows")
 				? "bin" + File.separator + "solr.cmd" : "bin" + File.separator + "solr";
-
+ 
 	}
 
 	public SolrNode(String version, String zooKeeperIp, String zooKeeperPort) throws IOException {
