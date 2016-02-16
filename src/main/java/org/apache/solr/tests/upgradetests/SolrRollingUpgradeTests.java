@@ -70,9 +70,9 @@ public class SolrRollingUpgradeTests {
 
 	public void test(String args[]) throws IOException, InterruptedException, SolrServerException {
 		
-		File built = Util.checkoutAndBuild("https://github.com/apache/lucene-solr.git", "branch_5x");
-		Util.postMessage(built.getName(), MessageType.GENERAL, false);
-		System.exit(0);
+		//File built = Util.checkoutAndBuild("https://github.com/apache/lucene-solr.git", "branch_5x");
+		//Util.postMessage(built.getName(), MessageType.GENERAL, false);
+		//System.exit(0);
 
 		Map<String, String> argM = new HashMap<String, String>();
 
