@@ -93,7 +93,7 @@ public class SolrNode {
 				long size = 0;
 				while (-1 != (n = in.read(buf))) {
 					size += n;
-					Util.postMessage("\r" + size + " ", MessageType.GENERAL, false);
+					Util.postMessageOnLine("\r" + size + " ");
 					fos.write(buf, 0, n);
 				}
 				fos.close();
