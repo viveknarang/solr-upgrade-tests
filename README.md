@@ -44,7 +44,7 @@ Following is the summary of the steps that the program follows to test the rolli
 2. Start Solr nodes 
 3. Create a Test collection
 4. Insert a set of 1000 documents
-5. Stop each node one by one, upgrade each node by replacing lib folder on server and then start each node
+5. Stop each node one by one, upgrade each node by replacing lib/ folder and webapp/ folder on server and then start each node
 6. Check if the /live_nodes has the upgraded node
 7. Check if all the documents are available from the collection
 8. If 6 and 7 pass, the program identifies the test as successful
