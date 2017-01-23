@@ -336,14 +336,17 @@ public class SolrNode {
 		Util.postMessage("** Attempting upgrade on the node by replacing lib folder ..." + "From: " + version + " To: "
 				+ toVersion, MessageType.ACTION, true);
 		try {
-			String localPath = File.separator + "server" + File.separator + "solr-webapp" + File.separator + "webapp"
-					+ File.separator + "WEB-INF" + File.separator + "lib";
+			String upgradeLocations[] = {
+					File.separator + "server" + File.separator + "lib",
+					File.separator + "server" + File.separator + "solr-webapp" + File.separator + "webapp"
+					+ File.separator + "WEB-INF" + File.separator + "lib"};
+			for (String localPath: upgradeLocations) {
+				File src = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion + localPath);
+				File dest = new File(nodeDirectory + "solr-" + version + localPath);
 
-			File src = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion + localPath);
-			File dest = new File(nodeDirectory + "solr-" + version + localPath);
-
-			FileUtils.cleanDirectory(dest);
-			FileUtils.copyDirectory(src, dest);
+				FileUtils.cleanDirectory(dest);
+				FileUtils.copyDirectory(src, dest);
+			}
 			Util.postMessage("Upgrade process complete ... ", MessageType.RESULT_SUCCESS, true);
 		} catch (Exception e) {
 			Util.postMessage("Upgrade failed due to some reason ...", MessageType.RESULT_ERRROR, true);
