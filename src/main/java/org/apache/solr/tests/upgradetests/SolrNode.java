@@ -504,4 +504,7 @@ public class SolrNode {
 		return nodeDirectory;
 	}
 
+	public String getBaseUrl() {
+		return "http://localhost:"+port+"/solr";
+	}
 }

@@ -105,7 +105,7 @@ public class SimpleBenchmarks {
 			/*client.postData(collectionName);
 			boolean pass = client.verifyData(collectionName);*/
 			
-			client.benchmark(collectionName);
+			client.benchmark(collectionName, nodes);
 			boolean pass = true;
 			
 			if (!pass) {

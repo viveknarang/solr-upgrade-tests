@@ -12,6 +12,7 @@ import org.apache.lucene.util.TestUtil;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
@@ -65,12 +66,16 @@ public class SolrClient {
 	}
 
 	private final int numDocs = 20000;
-	private final int iterations = 10;
+	private final int iterations = 3;
 	private final int updates = 10000;
 
-	public void benchmark(String collectionName) throws SolrServerException, IOException, InterruptedException {
+	public void benchmark(String collectionName, List<SolrNode> nodes) throws SolrServerException, IOException, InterruptedException {
 		Random r = new Random(0); // fixed seed, so that benchmarks are reproducible easily
+		org.apache.solr.client.solrj.SolrClient client = cloudSolrClient;
 		cloudSolrClient.setDefaultCollection(collectionName);
+		
+		ConcurrentUpdateSolrClient cusc = new ConcurrentUpdateSolrClient(nodes.get(0).getBaseUrl()+"/" + collectionName, numDocs, 4);
+		client = cusc;
 
 		long start = System.nanoTime();
 		List<SolrInputDocument> batch = new ArrayList<>();
@@ -81,15 +86,15 @@ public class SolrClient {
 			doc.addField("stored_l", r.nextLong());
 			doc.addField("inplace_dvo_l", r.nextLong());
 			doc.addField("text", Util.getSentence(r, 1000));
-			batch.add(doc);
+			client.add(doc);
 			if (i % 10000 == 0) {
 				System.out.println(i + ": "+doc);
 			}
 		}
 		System.out.println("Adding batch to csc...");
-		cloudSolrClient.add(batch);
+		//client.add(batch);
 		System.out.println("Added batch to csc...");
-		cloudSolrClient.commit();
+		client.commit();
 		long end = System.nanoTime();
 		Util.postMessage("Time for adding 20K documents: " + (end-start)/1000000000 + " secs", MessageType.RESULT_SUCCESS, true);
 		batch.clear();
@@ -106,14 +111,14 @@ public class SolrClient {
 					int docid = 1 + r.nextInt(numDocs);
 					doc.addField("id", docid);
 					doc.addField(field, ImmutableMap.of("set", r.nextInt()));
-					batch.add(doc);
+					client.add(doc);
 
 					if (i % 5000 == 0) {
 						System.out.println(iter+" ("+field+"), "+docid + ": "+doc);
 					}
 				}
-				cloudSolrClient.add(batch);
-				cloudSolrClient.commit();
+				//client.add(batch);
+				client.commit();
 				end = System.nanoTime();
 				
 				times.put(field, times.get(field) + (end-start));
@@ -125,6 +130,8 @@ public class SolrClient {
 		for (String field: Arrays.asList("stored_l", "inplace_dvo_l")) {
 			Util.postMessage("Time for "+field+": " + (times.get(field))/1000000000 + " secs", MessageType.RESULT_SUCCESS, true);
 		}
+		
+		cusc.close();
 	}
 
 	public boolean verifyData(String collectionName) throws IOException, InterruptedException, SolrServerException {
