@@ -2,14 +2,12 @@ package org.apache.solr.tests.upgradetests;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import org.apache.solr.client.solrj.SolrServerException;
-import org.eclipse.jgit.api.errors.GitAPIException;
 
 public class SimpleBenchmarks {
 	private static String WORK_DIRECTORY = System.getProperty("user.dir");
@@ -36,7 +34,7 @@ public class SimpleBenchmarks {
 				baseDir.mkdir();
 			}
 
-			org.apache.solr.tests.upgradetests.Util.postMessage("** Checking if temp directory exists ...", MessageType.ACTION, true);
+			Util.postMessage("** Checking if temp directory exists ...", MessageType.ACTION, true);
 			File tempDir = new File(TEMP_DIR);
 			if (!tempDir.exists()) {
 				Util.postMessage("Temp directory does not exist Creating Temp directory ...", MessageType.ACTION, true);
@@ -57,6 +55,7 @@ public class SimpleBenchmarks {
 			}
 		}
 		zookeeper.stop();
+		Thread.sleep(3000);
 		zookeeper.clean();
 	}
 
@@ -76,7 +75,6 @@ public class SimpleBenchmarks {
 		String numReplicas = argM.get("-Replicas");
 
 		int nodesCount = Integer.parseInt(numNodes);
-		String collectionName = UUID.randomUUID().toString();
 
 		Zookeeper zookeeper = new Zookeeper();
 		SolrClient client = new SolrClient(1000, zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
@@ -101,9 +99,15 @@ public class SimpleBenchmarks {
 
 			Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.RESULT_SUCCESS, false);
 
-			nodes.get(0).createCollection(collectionName, numShards, numReplicas);
-			client.postData(collectionName);
-			boolean pass = client.verifyData(collectionName);
+			String collectionName = "simple";
+			client.getCloudSolrClient().uploadConfig(Paths.get("gettingstarted/conf"), "benchmarks");
+			nodes.get(0).createCollection(collectionName, "benchmarks", numShards, numReplicas);
+			/*client.postData(collectionName);
+			boolean pass = client.verifyData(collectionName);*/
+			
+			client.benchmark(collectionName);
+			boolean pass = true;
+			
 			if (!pass) {
 				throw new Exception("Data verification failed");
 			} else {
@@ -111,8 +115,8 @@ public class SimpleBenchmarks {
 				removeFilesAfterCleanup = true;
 			}
 		} finally {
+			client.getCloudSolrClient().close();
 			this.cleanup(nodes, zookeeper, removeFilesAfterCleanup);
 		}
 	}
-
 }

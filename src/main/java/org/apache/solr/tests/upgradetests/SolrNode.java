@@ -309,15 +309,26 @@ public class SolrNode {
 				+ " -z " + zooKeeperIp + ":" + zooKeeperPort, nodeDirectory + "solr-" + version);
 	}
 
-	@SuppressWarnings("finally")
-	public int createCollection(String collectionName, String shards, String replicationFactor)
+	public int createCollection(String collectionName, String shards, String replicationFactor) throws IOException, InterruptedException {
+		return createCollection(collectionName, null, shards, replicationFactor);
+	}
+
+	public int createCollection(String collectionName, String configName, String shards, String replicationFactor)
 			throws IOException, InterruptedException {
 
 		Util.postMessage("** Creating collection, configuring shards and replication factor ... ", MessageType.ACTION,
 				true);
-		return Util.execute(solrCommand + " create_collection -c "
-					+ collectionName + " -shards " + shards + " -replicationFactor " + replicationFactor, nodeDirectory + "solr-" + version);
 		
+		if (configName != null) {
+			return Util.execute(solrCommand + " create_collection "
+					+ "-c " + collectionName
+					+ " -shards " + shards
+					+ " -n " + configName 
+					+ " -replicationFactor " + replicationFactor, nodeDirectory + "solr-" + version);
+		} else {
+			return Util.execute(solrCommand + " create_collection -c "
+					+ collectionName + " -shards " + shards + " -replicationFactor " + replicationFactor, nodeDirectory + "solr-" + version);
+		}
 
 	}
 
