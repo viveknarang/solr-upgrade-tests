@@ -207,7 +207,9 @@ public class SolrNode {
 		try {
 
 			new File(nodeDirectory + "solr-" + version + File.separator + solrCommand).setExecutable(true);
-			proc = rt.exec(nodeDirectory + "solr-" + version + File.separator + solrCommand + " start -p " + port
+			proc = rt.exec(nodeDirectory + "solr-" + version + File.separator + solrCommand + " start "
+					+ "-p " + port
+					+ "-m 4g"
 					+ " -z " + zooKeeperIp + ":" + zooKeeperPort);
 
 			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
