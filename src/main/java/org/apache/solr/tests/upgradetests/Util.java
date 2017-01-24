@@ -6,10 +6,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.util.TestUtil;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -49,6 +51,14 @@ public class Util {
 
 	}
 
+	public static String getSentence(Random r, int words) {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<words; i++) {
+			sb.append(TestUtil.randomSimpleString(r, 4 + r.nextInt(10)) + " ");
+		}
+		return sb.toString().trim();
+	}
+	
 	public static int execute(String command, String workingDirectoryPath) {
 		Util.postMessage("Executing: "+command, MessageType.ACTION, true);
 		Util.postMessage("Working dir: "+workingDirectoryPath, MessageType.ACTION, true);

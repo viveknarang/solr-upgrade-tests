@@ -81,6 +81,14 @@
 		    <version>21.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-test-framework -->
+		<dependency>
+			    <groupId>org.apache.lucene</groupId>
+			        <artifactId>lucene-test-framework</artifactId>
+				    <version>5.4.1</version>
+			    </dependency>
+
+
 	</dependencies>
 
 	<build>
