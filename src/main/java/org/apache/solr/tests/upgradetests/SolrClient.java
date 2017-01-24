@@ -26,14 +26,23 @@ public class SolrClient {
 	private String zookeeperPort;
 	private final CloudSolrClient cloudSolrClient;
 
-
 	public SolrClient(int testDocumentsCount, String zookeeperIp, String zookeeperPort) {
+		this(testDocumentsCount, zookeeperIp, zookeeperPort, 
+				20000, 10, 5000, 5000, 4);
+	}
+	public SolrClient(int testDocumentsCount, String zookeeperIp, String zookeeperPort, 
+			int numDocs, int iterations, int updates, int queueSize, int threads) {
 		super();
 		this.testDocumentsCount = testDocumentsCount;
 		this.zookeeperIp = zookeeperIp;
 		this.zookeeperPort = zookeeperPort;
 		
 		this.cloudSolrClient = new CloudSolrClient(zookeeperIp + ":" + zookeeperPort);
+		this.numDocs = numDocs;
+		this.iterations = iterations;
+		this.updates = updates;
+		this.queueSize = queueSize;
+		this.threads = threads;
 	}
 
 	public void postData(String collectionName) throws IOException, InterruptedException, SolrServerException {
@@ -65,16 +74,18 @@ public class SolrClient {
 
 	}
 
-	private final int numDocs = 20000;
-	private final int iterations = 3;
-	private final int updates = 10000;
+	private final int numDocs;
+	private final int iterations;
+	private final int updates;
+	private final int threads;
+	private final int queueSize;
 
 	public void benchmark(String collectionName, List<SolrNode> nodes) throws SolrServerException, IOException, InterruptedException {
 		Random r = new Random(0); // fixed seed, so that benchmarks are reproducible easily
 		org.apache.solr.client.solrj.SolrClient client = cloudSolrClient;
 		cloudSolrClient.setDefaultCollection(collectionName);
 		
-		ConcurrentUpdateSolrClient cusc = new ConcurrentUpdateSolrClient(nodes.get(0).getBaseUrl()+"/" + collectionName, numDocs, 4);
+		ConcurrentUpdateSolrClient cusc = new ConcurrentUpdateSolrClient(nodes.get(0).getBaseUrl()+"/" + collectionName, queueSize, threads);
 		client = cusc;
 
 		long start = System.nanoTime();
@@ -91,10 +102,9 @@ public class SolrClient {
 				System.out.println(i + ": "+doc);
 			}
 		}
-		System.out.println("Adding batch to csc...");
-		//client.add(batch);
-		System.out.println("Added batch to csc...");
+		System.out.println("Committing...");
 		client.commit();
+		System.out.println("Committed...");
 		long end = System.nanoTime();
 		Util.postMessage("Time for adding 20K documents: " + (end-start)/1000000000 + " secs", MessageType.RESULT_SUCCESS, true);
 		batch.clear();

@@ -76,8 +76,15 @@ public class SimpleBenchmarks {
 
 		int nodesCount = Integer.parseInt(numNodes);
 
+		int numDocs = Integer.parseInt(argM.get("-numDocs"));
+		int iterations = Integer.parseInt(argM.get("-iterations"));
+		int updates = Integer.parseInt(argM.get("-updates"));
+		int queueSize = Integer.parseInt(argM.get("-queueSize"));
+		int thread = Integer.parseInt(argM.get("-threads"));
+
 		Zookeeper zookeeper = new Zookeeper();
-		SolrClient client = new SolrClient(1000, zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
+		SolrClient client = new SolrClient(1000, zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort(),
+				numDocs, iterations, updates, queueSize, thread);
 		zookeeper.start();
 
 		List<SolrNode> nodes = new LinkedList<SolrNode>();
