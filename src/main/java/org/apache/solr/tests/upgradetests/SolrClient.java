@@ -86,17 +86,18 @@ public class SolrClient {
 		Map<String, Long> times = new HashMap<String, Long>();
 		times.put("stored_l", 0l);
 		times.put("inplace_dvo_l", 0l);
-		for (int iter=0; iter<5; iter++) {
+		for (int iter=0; iter<50; iter++) {
 			for (String field: Arrays.asList("stored_l", "inplace_dvo_l")) {
 				start = System.nanoTime();
-				for (int i=1; i<=20000; i++) {
+				for (int i=1; i<=50000; i++) {
 					SolrInputDocument doc = new SolrInputDocument();
-					doc.addField("id", i);
+					int docid = 1 + r.nextInt(20000);
+					doc.addField("id", docid);
 					doc.addField(field, ImmutableMap.of("set", r.nextInt()));
 					cloudSolrClient.add(doc);
 
 					if (i % 5000 == 0) {
-						System.out.println(iter+" ("+field+"), "+i + ": "+doc);
+						System.out.println(iter+" ("+field+"), "+docid + ": "+doc);
 					}
 				}
 				cloudSolrClient.commit();
