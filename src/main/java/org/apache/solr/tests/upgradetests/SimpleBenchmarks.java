@@ -11,17 +11,15 @@ import java.util.UUID;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-
-public class SolrRollingUpgradeTests {
-
+public class SimpleBenchmarks {
 	private static String WORK_DIRECTORY = System.getProperty("user.dir");
 	private static String DNAME = "SolrUpdateTests";
 	public static String BASE_DIR = WORK_DIRECTORY + File.separator + DNAME + File.separator;
 	public static String TEMP_DIR = BASE_DIR + "temp" + File.separator;
 
-	public static void main(String args[]) throws IOException, InterruptedException, SolrServerException, GitAPIException {
+	public static void main(String args[]) throws Exception {
 
-		SolrRollingUpgradeTests s = new SolrRollingUpgradeTests();
+		SimpleBenchmarks s = new SimpleBenchmarks();
 		s.init();
 		s.test(args);
 
@@ -50,35 +48,29 @@ public class SolrRollingUpgradeTests {
 		}
 
 	}
-	
-	private void cleanAndExit(int exitValue, List<SolrNode> nodes, Zookeeper zookeeper, boolean removeFiles) throws IOException, InterruptedException {
-		
+
+	private void cleanup(List<SolrNode> nodes, Zookeeper zookeeper, boolean removeFiles) throws IOException, InterruptedException {
 		for (SolrNode cnode : nodes) {
 			cnode.stop();
 			if (removeFiles) {
-					cnode.clean();
+				cnode.clean();
 			}
-			Thread.sleep(10000);
 		}
 		zookeeper.stop();
 		zookeeper.clean();
-		if (exitValue != 0) {
-			Util.postMessage("############# TEST FAILED/TERMINATED #############", MessageType.RESULT_ERRROR, true);
-		}
-		System.exit(exitValue);
-
 	}
 
-	public void test(String args[]) throws IOException, InterruptedException, SolrServerException, GitAPIException {
+	public void test(String args[]) throws Exception {
 
+		boolean removeFilesAfterCleanup = false;
+		
 		Map<String, String> argM = new HashMap<String, String>();
 
 		for (int i = 0; i < args.length; i += 2) {
 			argM.put(args[i], args[i + 1]);
 		}
 
-		String versionOne = argM.get("-v1");
-		String versionTwo = argM.get("-v2");
+		String versionOne = argM.get("-v");
 		String numNodes = argM.get("-Nodes");
 		String numShards = argM.get("-Shards");
 		String numReplicas = argM.get("-Replicas");
@@ -89,58 +81,38 @@ public class SolrRollingUpgradeTests {
 		Zookeeper zookeeper = new Zookeeper();
 		SolrClient client = new SolrClient(1000, zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
 		zookeeper.start();
-		
+
 		List<SolrNode> nodes = new LinkedList<SolrNode>();
-		
+
 		SolrNode node;
 		for (int i = 1; i <= nodesCount ; i++) {
-
 			node = new SolrNode(versionOne, zookeeper.getZookeeperIp(), zookeeper.getZookeeperPort());
 			node.start();
 			Thread.sleep(1000);
 			nodes.add(node);
-			if(i == nodesCount) {
-				node.createCollection(collectionName, numShards, numReplicas);
-			}
 		}
-		
-		int nodeUpCount = client.getLiveNodes();
-		if (nodeUpCount != nodesCount) {
-			Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.RESULT_ERRROR, false);	
-			this.cleanAndExit(-1, nodes, zookeeper, true);
-		} 
-		Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.RESULT_SUCCESS, false);
-		Thread.sleep(30000);
-		client.postData(collectionName);
-		
-		for (SolrNode unode : nodes) {
 
-			unode.stop();
-			Thread.sleep(30000);
-			unode.upgrade(versionTwo);
-			Thread.sleep(30000);
-			unode.start();
-			
-			if (!client.verifyData(collectionName)) {
-				Util.postMessage("Data Inconsistant ...", MessageType.RESULT_ERRROR, true);
-				this.cleanAndExit(-1, nodes, zookeeper, false);				
+		try {
+			int nodeUpCount = client.getLiveNodes();
+
+			if (nodeUpCount != nodesCount) {
+				throw new Exception("Current number of nodes that are up: " + nodeUpCount);	
 			}
-			
+
+			Util.postMessage(String.valueOf("Current number of nodes that are up: " + nodeUpCount), MessageType.RESULT_SUCCESS, false);
+
+			nodes.get(0).createCollection(collectionName, numShards, numReplicas);
+			client.postData(collectionName);
+			boolean pass = client.verifyData(collectionName);
+			if (!pass) {
+				throw new Exception("Data verification failed");
+			} else {
+				Util.postMessage("Test passed ...", MessageType.RESULT_SUCCESS, true);
+				removeFilesAfterCleanup = true;
+			}
+		} finally {
+			this.cleanup(nodes, zookeeper, removeFilesAfterCleanup);
 		}
-		
-		if (client.getLiveNodes() == nodesCount) {
-			Util.postMessage("All nodes are up ...", MessageType.RESULT_SUCCESS, true);
-		} else {
-			Util.postMessage("All nodes didn't come up ...", MessageType.RESULT_ERRROR, true);
-			this.cleanAndExit(-1, nodes, zookeeper, false);				
-		}
-		
-		if ((client.getLiveNodes() == nodesCount) && (client.verifyData(collectionName))) {
-			Util.postMessage("############# TEST PASSED #############", MessageType.RESULT_SUCCESS, true);
-		} else {
-			Util.postMessage("############# TEST FAILED #############", MessageType.RESULT_ERRROR, true);
-		}
-		
-		this.cleanAndExit(0, nodes, zookeeper, true);
 	}
+
 }

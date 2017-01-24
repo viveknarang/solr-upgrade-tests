@@ -1,11 +1,18 @@
 package org.apache.solr.tests.upgradetests;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
+
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
 enum MessageType {
 	PROCESS, ACTION, RESULT_SUCCESS, RESULT_ERRROR, GENERAL
@@ -42,10 +49,45 @@ public class Util {
 
 	}
 
+	public static int execute(String command, String workingDirectoryPath) {
+		Util.postMessage("Executing: "+command, MessageType.ACTION, true);
+		Util.postMessage("Working dir: "+workingDirectoryPath, MessageType.ACTION, true);
+		File workingDirectory = new File(workingDirectoryPath);
+		Runtime rt = Runtime.getRuntime();
+		Process proc = null;
+		StreamGobbler errorGobbler = null;
+		StreamGobbler outputGobbler = null;
+
+		try {
+			proc = rt.exec(command, new String[]{}, workingDirectory);
+
+			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+
+			errorGobbler.start();
+			outputGobbler.start();
+			proc.waitFor();
+			return proc.exitValue();
+		} catch (Exception e) {
+			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+			return -1;
+		}
+	}
+	
 	public static void postMessageOnLine(String message) {
 
 		System.out.print(message);
 
+	}
+
+	public static void extract (String filename, String filePath) throws IOException {
+		Util.postMessage("** Attempting to unzip the downloaded release ...", MessageType.ACTION, true);
+		try {
+			ZipFile zip = new ZipFile(filename);
+			zip.extractAll(filePath);
+		} catch (ZipException ex) {
+			throw new IOException(ex);
+		}
 	}
 
 	@SuppressWarnings("finally")

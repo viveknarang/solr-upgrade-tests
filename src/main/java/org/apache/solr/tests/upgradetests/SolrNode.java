@@ -9,6 +9,10 @@ import java.io.InputStream;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.ZipEntry;
@@ -16,6 +20,11 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jgit.api.CreateBranchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 
 public class SolrNode {
 
@@ -36,7 +45,9 @@ public class SolrNode {
 
 	}
 
-	public SolrNode(String version, String zooKeeperIp, String zooKeeperPort) throws IOException {
+	private String gitDirectoryPath = SolrRollingUpgradeTests.TEMP_DIR + "git-repository";
+
+	public SolrNode(String version, String zooKeeperIp, String zooKeeperPort) throws IOException, GitAPIException {
 		super();
 		this.version = version;
 		this.zooKeeperIp = zooKeeperIp;
@@ -44,7 +55,7 @@ public class SolrNode {
 		this.install();
 	}
 
-	private void install() throws IOException {
+	private void install() throws IOException, GitAPIException {
 
 		Util.postMessage("** Installing Solr Node ...", MessageType.ACTION, true);
 
@@ -72,78 +83,115 @@ public class SolrNode {
 
 		File release = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version + ".zip");
 		if (!release.exists()) {
-
-			String fileName = null;
-			URL link = null;
-			InputStream in = null;
-			FileOutputStream fos = null;
-
-			try {
-
-				fileName = "solr-" + version + ".zip";
-				String url = URL_BASE + version + File.separator + fileName;
-				Util.postMessage("** Attempting to download release ..." + " " + version + " from " + url,
-						MessageType.ACTION, true);
-				link = new URL(url);
-
-				in = new BufferedInputStream(link.openStream());
-				fos = new FileOutputStream(SolrRollingUpgradeTests.TEMP_DIR + fileName);
-				byte[] buf = new byte[1024 * 1024]; // 1mb blocks
-				int n = 0;
-				long size = 0;
-				while (-1 != (n = in.read(buf))) {
-					size += n;
-					Util.postMessageOnLine("\r" + size + " ");
-					fos.write(buf, 0, n);
-				}
-				fos.close();
-				in.close();
-
-			} catch (Exception e) {
-
-				Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
+			if (Character.isDigit(version.charAt(0)) && version.length() == 5) { // must be a release version, e.g. "6.4.0"
+				download(version);
+			} else { // assuming this is a git branch/commit
+				checkoutCommitAndBuild(version);
 			}
 		}
 
 		File uzrelease = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version);
 		if (!uzrelease.exists()) {
-
-			ZipInputStream zipIn = null;
-
-			try {
-
-				Util.postMessage("** Attempting to unzip the downloaded release ...", MessageType.ACTION, true);
-				zipIn = new ZipInputStream(
-						new FileInputStream(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version + ".zip"));
-				ZipEntry entry = zipIn.getNextEntry();
-				while (entry != null) {
-					String filePath = SolrRollingUpgradeTests.TEMP_DIR + File.separator + entry.getName();
-					if (!entry.isDirectory()) {
-						Util.postMessage("\r Unzipping to : " + SolrRollingUpgradeTests.TEMP_DIR + " : " + entry.getName(),
-								MessageType.ACTION, true);
-						Util.extractFile(zipIn, filePath);
-					} else {
-						File dirx = new File(filePath);
-						dirx.mkdir();
-					}
-					zipIn.closeEntry();
-					entry = zipIn.getNextEntry();
+			Util.extract(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version + ".zip", SolrRollingUpgradeTests.TEMP_DIR + "solr-"+version);
+			
+			for (File file: new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-"+version+"/solr-7.0.0-SNAPSHOT").listFiles()) {
+				String src = file.getAbsolutePath();
+				String dest = SolrRollingUpgradeTests.TEMP_DIR + "solr-"+version;
+				System.out.println("Moving "+src+ " to "+dest);
+				//Files.move(Paths.get(src), Paths.get(dest), StandardCopyOption.REPLACE_EXISTING);
+				if (file.isDirectory()) {
+					FileUtils.moveDirectoryToDirectory(file, new File(dest), true);
+				} else {
+					FileUtils.moveFileToDirectory(file, new File(dest), true);
 				}
-				zipIn.close();
-
-			} catch (Exception e) {
-
-				Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-
 			}
-
-		} 
+		}
 
 		File node = new File(nodeDirectory + "solr-" + version);
 		node.mkdir();
 		FileUtils.copyDirectory(new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + version), node);
-		
+
+	}
+
+	void download(String version) {
+		String fileName = null;
+		URL link = null;
+		InputStream in = null;
+		FileOutputStream fos = null;
+
+		try {
+
+			fileName = "solr-" + version + ".zip";
+			String url = URL_BASE + version + File.separator + fileName;
+			Util.postMessage("** Attempting to download release ..." + " " + version + " from " + url,
+					MessageType.ACTION, true);
+			link = new URL(url);
+
+			in = new BufferedInputStream(link.openStream());
+			fos = new FileOutputStream(SolrRollingUpgradeTests.TEMP_DIR + fileName);
+			byte[] buf = new byte[1024 * 1024]; // 1mb blocks
+			int n = 0;
+			long size = 0;
+			while (-1 != (n = in.read(buf))) {
+				size += n;
+				Util.postMessageOnLine("\r" + size + " ");
+				fos.write(buf, 0, n);
+			}
+			fos.close();
+			in.close();
+
+		} catch (Exception e) {
+
+			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
+
+		}
+	}
+
+	void checkoutCommitAndBuild (String commit) throws IOException, GitAPIException {
+		Util.postMessage("** Checking out Solr: "+commit+" ...", MessageType.ACTION, true);
+
+		File gitDirectory = new File(gitDirectoryPath);
+
+		Git repository;
+
+		if (gitDirectory.exists()) {
+			repository = Git.open(gitDirectory);
+
+			repository.checkout()
+			.setName(commit)
+			.call();
+
+		} else {
+			repository = Git.cloneRepository()
+					.setURI("https://github.com/apache/lucene-solr")
+					.setDirectory(gitDirectory)
+					.call();
+			repository.checkout()
+			.setName(commit)
+			.call();
+		}
+
+		String packageFilename = gitDirectoryPath + "/solr/package/solr-7.0.0-SNAPSHOT.zip";
+		String tarballLocation = SolrRollingUpgradeTests.TEMP_DIR+"solr-"+commit+".zip";
+
+		if (new File(tarballLocation).exists() == false) {
+			if (new File(packageFilename).exists() == false) {
+				Util.postMessage("** There were new changes, need to rebuild ...", MessageType.ACTION, true);
+				Util.execute("ant ivy-bootstrap", gitDirectoryPath);
+				//Util.execute("ant compile", gitDirectoryPath);
+				Util.execute("ant package", gitDirectoryPath + File.separator + "solr");
+			}
+
+			if (new File(packageFilename).exists()) {
+				System.out.println("Trying to copy: "+packageFilename + " to "+tarballLocation);
+				Files.copy(Paths.get(packageFilename), Paths.get(tarballLocation));
+				System.out.println("File copied!");
+			} else {
+				throw new IOException("Couldn't build the package"); // nocommit fix, better exception
+			}
+		}
+
+		Util.postMessage("** Do we have packageFilename? "+(new File(tarballLocation).exists()? "yes": "no")+" ...", MessageType.ACTION, true);
 	}
 
 	@SuppressWarnings("finally")
@@ -183,40 +231,82 @@ public class SolrNode {
 
 	}
 
+	void checkoutBranchAndBuild (String branch) throws IOException, GitAPIException {
+		Util.postMessage("** Checking out Solr ...", MessageType.ACTION, true);
+
+		File gitDirectory = new File(gitDirectoryPath);
+
+		Git repository;
+
+		boolean newCode = false;
+		if (gitDirectory.exists()) {
+			repository = Git.open(gitDirectory);
+
+			boolean branchExists = false;
+
+			if (repository.getRepository().getBranch().equals(branch)) {
+				branchExists = true;
+			} else {
+				for (Ref ref: repository.branchList().call()) {
+					if (ref.getName().equals("refs/heads/" + branch)) {
+						branchExists = true;
+						break;
+					}
+				}
+				newCode = true; // we need to switch branches
+			}
+
+			if (branchExists) {
+				Util.postMessage("** git branch already exists, switching to it ...", MessageType.ACTION, true);
+				repository.checkout()
+				.setName(branch)
+				.call();
+
+				Util.postMessage("** git pull ...", MessageType.ACTION, true);
+				PullResult pullResult = repository.pull().call();
+				if (pullResult.getFetchResult().getTrackingRefUpdates().isEmpty() == false) {
+					newCode = true;
+				}
+			} else {
+				newCode = true; // branch didn't exist before
+				Util.postMessage("** git branch didn't exist before, checking out ...", MessageType.ACTION, true);
+				repository.checkout()
+				.setCreateBranch(true)
+				.setName(branch)
+				.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+				.setStartPoint("origin/" + branch)
+				.call();
+
+				Util.postMessage("** git pull ...", MessageType.ACTION, true);
+				PullResult pullResult = repository.pull().call();
+
+			}
+		} else {
+			repository = Git.cloneRepository()
+					.setURI("https://github.com/apache/lucene-solr")
+					.setDirectory(gitDirectory)
+					.setBranch(branch)
+					.call();
+			newCode = true;
+		}
+
+		String packageFilename = gitDirectoryPath + "/solr/package/solr-7.0.0-SNAPSHOT.tgz";
+		if (newCode || new File(packageFilename).exists() == false) {
+			Util.postMessage("** There were new changes, need to rebuild ...", MessageType.ACTION, true);
+			Util.execute("ant ivy-bootstrap", gitDirectoryPath);
+			//Util.execute("ant compile", gitDirectoryPath);
+			Util.execute("ant package", gitDirectoryPath + File.separator + "solr");
+		}
+
+		Util.postMessage("** Do we have packageFilename? "+(new File(packageFilename).exists()? "yes": "no")+" ...", MessageType.ACTION, true);
+	}
+
 	@SuppressWarnings("finally")
 	public int stop() {
 
 		Util.postMessage("** Stopping Solr Node ...", MessageType.ACTION, true);
-
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
-
-		try {
-
-			new File(nodeDirectory + "solr-" + version + File.separator + solrCommand).setExecutable(true);
-			proc = rt.exec(nodeDirectory + "solr-" + version + File.separator + solrCommand + " stop -p " + port
-					+ " -z " + zooKeeperIp + ":" + zooKeeperPort);
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-			return -1;
-
-		} finally {
-
-			return proc.exitValue();
-		}
-
+		return Util.execute(solrCommand + " stop -p " + port
+				+ " -z " + zooKeeperIp + ":" + zooKeeperPort, nodeDirectory + "solr-" + version);
 	}
 
 	@SuppressWarnings("finally")
@@ -225,40 +315,15 @@ public class SolrNode {
 
 		Util.postMessage("** Creating collection, configuring shards and replication factor ... ", MessageType.ACTION,
 				true);
-		Runtime rt = Runtime.getRuntime();
-		Process proc = null;
-		StreamGobbler errorGobbler = null;
-		StreamGobbler outputGobbler = null;
-
-		try {
-
-			proc = rt.exec(nodeDirectory + "solr-" + version + File.separator + solrCommand + " create_collection -c "
-					+ collectionName + " -shards " + shards + " -replicationFactor " + replicationFactor);
-
-			errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-			outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-			errorGobbler.start();
-			outputGobbler.start();
-			proc.waitFor();
-			return proc.exitValue();
-
-		} catch (Exception e) {
-
-			Util.postMessage(e.getMessage(), MessageType.RESULT_ERRROR, true);
-			return -1;
-
-		} finally {
-
-			return proc.exitValue();
-
-		}
+		return Util.execute(solrCommand + " create_collection -c "
+					+ collectionName + " -shards " + shards + " -replicationFactor " + replicationFactor, nodeDirectory + "solr-" + version);
+		
 
 	}
 
 	public void upgrade(String toVersion) throws IOException, InterruptedException {
-		
-		
+
+
 		File release = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion + ".zip");
 		if (!release.exists()) {
 
@@ -328,9 +393,9 @@ public class SolrNode {
 			}
 
 		} 
-		
+
 		Thread.sleep(1000);
-		
+
 		this.stop();
 
 		Util.postMessage("** Attempting upgrade on the node by replacing lib folder ..." + "From: " + version + " To: "
@@ -339,7 +404,7 @@ public class SolrNode {
 			String upgradeLocations[] = {
 					File.separator + "server" + File.separator + "lib",
 					File.separator + "server" + File.separator + "solr-webapp" + File.separator + "webapp"
-					+ File.separator + "WEB-INF" + File.separator + "lib"};
+							+ File.separator + "WEB-INF" + File.separator + "lib"};
 			for (String localPath: upgradeLocations) {
 				File src = new File(SolrRollingUpgradeTests.TEMP_DIR + "solr-" + toVersion + localPath);
 				File dest = new File(nodeDirectory + "solr-" + version + localPath);
@@ -390,7 +455,7 @@ public class SolrNode {
 				true);
 		return getFreePort();
 	}
-	
+
 	@SuppressWarnings("finally")
 	public int clean() {
 

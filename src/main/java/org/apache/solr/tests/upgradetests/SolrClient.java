@@ -61,7 +61,7 @@ public class SolrClient {
 
 	public boolean verifyData(String collectionName) throws IOException, InterruptedException, SolrServerException {
 
-		Util.postMessage("** Getting the data from nodes ... ", MessageType.RESULT_ERRROR, true);
+		Util.postMessage("** Getting the data from nodes ... ", MessageType.RESULT_SUCCESS, true);
 		CloudSolrClient solr = new CloudSolrClient(zookeeperIp + ":" + zookeeperPort);
 		try {
 
