@@ -89,7 +89,7 @@ public class SolrClient {
 		for (int iter=0; iter<50; iter++) {
 			for (String field: Arrays.asList("stored_l", "inplace_dvo_l")) {
 				start = System.nanoTime();
-				for (int i=1; i<=50000; i++) {
+				for (int i=1; i<=5000; i++) {
 					SolrInputDocument doc = new SolrInputDocument();
 					int docid = 1 + r.nextInt(20000);
 					doc.addField("id", docid);
